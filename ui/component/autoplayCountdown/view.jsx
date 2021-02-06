@@ -6,18 +6,20 @@ import I18nMessage from 'component/i18nMessage';
 import { formatLbryUrlForWeb } from 'util/url';
 import { withRouter } from 'react-router';
 import debounce from 'util/debounce';
-
+import { COLLECTIONS_CONSTS } from 'lbry-redux';
 const DEBOUNCE_SCROLL_HANDLER_MS = 150;
 const CLASSNAME_AUTOPLAY_COUNTDOWN = 'autoplay-countdown';
 
 type Props = {
-  history: { push: string => void },
+  history: { push: (string) => void },
   nextRecommendedClaim: ?StreamClaim,
   nextRecommendedUri: string,
   isFloating: boolean,
   doSetPlayingUri: ({ uri: ?string }) => void,
-  doPlayUri: string => void,
+  doPlayUri: (string) => void,
   modal: { id: string, modalProps: {} },
+  collectionId?: string,
+  collectionIndex?: number,
 };
 
 function AutoplayCountdown(props: Props) {
@@ -29,6 +31,8 @@ function AutoplayCountdown(props: Props) {
     isFloating,
     history: { push },
     modal,
+    collectionId,
+    collectionIndex,
   } = props;
   const nextTitle = nextRecommendedClaim && nextRecommendedClaim.value && nextRecommendedClaim.value.title;
 
@@ -44,6 +48,12 @@ function AutoplayCountdown(props: Props) {
   let navigateUrl;
   if (nextTitle) {
     navigateUrl = formatLbryUrlForWeb(nextRecommendedUri);
+    if (collectionId) {
+      const collectionParams = new URLSearchParams();
+      collectionParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, collectionId);
+      collectionParams.set(COLLECTIONS_CONSTS.COLLECTION_INDEX, collectionIndex ? String(collectionIndex + 1) : '1');
+      navigateUrl = navigateUrl + `?` + collectionParams.toString();
+    }
   }
 
   const doNavigate = useCallback(() => {
@@ -71,7 +81,7 @@ function AutoplayCountdown(props: Props) {
     // Ensure correct 'setTimerPaused' on initial render.
     setTimerPaused(shouldPauseAutoplay());
 
-    const handleScroll = debounce(e => {
+    const handleScroll = debounce((e) => {
       setTimerPaused(shouldPauseAutoplay());
     }, DEBOUNCE_SCROLL_HANDLER_MS);
 

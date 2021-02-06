@@ -89,7 +89,13 @@ function SideNavigation(props: Props) {
       icon: ICONS.DISCOVER,
     },
     {
-      title: IS_WEB ? 'Purchased' : 'Library',
+      title: 'Lists',
+      link: `/$/${PAGES.LISTS}`,
+      icon: ICONS.STACK,
+      hideForUnauth: true,
+    },
+    {
+      title: 'Library',
       link: `/$/${PAGES.LIBRARY}`,
       icon: ICONS.PURCHASED,
       hideForUnauth: true,
@@ -225,6 +231,13 @@ function SideNavigation(props: Props) {
 
   if (!SIMPLE_SITE) {
     SIDE_LINKS.push(...FULL_LINKS);
+  } else {
+    SIDE_LINKS.push({
+      title: 'Lists',
+      link: `/$/${PAGES.LISTS}`,
+      icon: ICONS.STACK,
+      hideForUnauth: true,
+    });
   }
 
   const [pulseLibrary, setPulseLibrary] = React.useState(false);
