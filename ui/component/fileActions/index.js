@@ -7,12 +7,14 @@ import {
   selectMyChannelClaims,
   makeSelectClaimIsStreamPlaceholder,
 } from 'lbry-redux';
+import { makeSelectUserPropForProp } from 'redux/selectors/user';
 import { makeSelectCostInfoForUri } from 'lbryinc';
 import { doSetPlayingUri } from 'redux/actions/content';
 import { doToast } from 'redux/actions/notifications';
 import { doOpenModal, doSetActiveChannel, doSetIncognito } from 'redux/actions/app';
 import fs from 'fs';
 import FileActions from './view';
+import * as USER from 'constants/user';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 
 const select = (state, props) => ({
@@ -23,6 +25,7 @@ const select = (state, props) => ({
   costInfo: makeSelectCostInfoForUri(props.uri)(state),
   myChannels: selectMyChannelClaims(state),
   isLivestreamClaim: makeSelectClaimIsStreamPlaceholder(props.uri)(state),
+  hasExperimentalUi: makeSelectUserPropForProp(USER.EXPERIMENTAL_UI)(state),
 });
 
 const perform = (dispatch) => ({
