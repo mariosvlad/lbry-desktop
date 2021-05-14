@@ -32,7 +32,11 @@
 }
 .collection-select__item {
   display: flex;
+  &:first-of-type {
+    margin-top: var(--spacing-xs);
+  }
   margin-bottom: var(--spacing-xs);
+  margin-left: var(--spacing-xxs);
 }
 .icon-collection-select {
   vertical-align: middle;

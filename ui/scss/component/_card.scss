@@ -294,6 +294,7 @@
 
 .card__body-scrollable {
   overflow-y: scroll;
+  max-height: 30vh;
 }
 
 .card__main-actions {
