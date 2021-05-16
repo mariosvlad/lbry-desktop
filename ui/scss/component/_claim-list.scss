@@ -591,6 +591,63 @@
   }
 }
 
+.claim-properties {
+  display: flex;
+  position: relative;
+  align-items: center;
+  font-size: var(--font-small);
+  color: var(--color-text-help);
+  margin-left: var(--spacing-m);
+  white-space: nowrap;
+
+  & > *:not(:last-child) {
+    margin-right: var(--spacing-s);
+  }
+}
+
+.claim-preview__claim-property-overlay {
+  position: absolute;
+  bottom: var(--spacing-xxs);
+  right: var(--spacing-xxs);
+  background-color: var(--color-black);
+  padding: 0.3rem;
+  border-radius: var(--border-radius);
+  opacity: 0.7;
+  z-index: 2;
+
+  .claim-properties {
+    color: var(--color-white);
+  }
+
+  .file-price {
+    padding: 0.1rem;
+  }
+}
+
+.claim-preview__collection-wrapper {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  opacity: 0;
+  &:hover {
+    opacity: 0.8;
+    background-color: var(--color-black);
+  }
+  z-index: 2;
+}
+
+.claim-preview__collection-wrapper--unpublished {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  opacity: 1;
+  z-index: 2;
+}
+
 .claim-preview--tile {
   &:hover {
     .claim-preview__hover-actions {

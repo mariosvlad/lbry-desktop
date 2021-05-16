@@ -1,19 +1,14 @@
 // @flow
 import React from 'react';
 import classnames from 'classnames';
-import { useHistory, withRouter } from 'react-router-dom';
-// import useGetThumbnail from 'effects/use-get-thumbnail';
-// import { formatLbryUrlForWeb } from 'util/url';
-import * as PAGES from 'constants/pages';
-import * as ICONS from 'constants/icons';
-// import { COLLECTIONS_CONSTS } from 'lbry-redux';
-import Button from 'component/button';
-import Card from 'component/common/card';
+import { NavLink, withRouter, useHistory } from 'react-router-dom';
 import ClaimPreviewTile from 'component/claimPreviewTile';
-import UriIndicator from '../uriIndicator';
-import ChannelThumbnail from 'component/channelThumbnail';
-import DateTime from 'component/dateTime';
-import Icon from 'component/common/icon';
+import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
+import TruncatedText from 'component/common/truncated-text';
+import CollectionCount from './collectionCount';
+import CollectionPrivate from './collectionPrivate';
+import { formatLbryUrlForWeb } from 'util/url';
+import { COLLECTIONS_CONSTS } from 'lbry-redux';
 
 type Props = {
   uri: string,
@@ -45,6 +40,7 @@ type Props = {
   collectionId: string,
   deleteCollection: (string) => void,
   resolveCollectionItems: (any) => void,
+  isResolvingCollectionClaims: boolean,
 };
 
 function CollectionPreviewTile(props: Props) {
@@ -53,13 +49,12 @@ function CollectionPreviewTile(props: Props) {
     uri,
     collectionId,
     collectionName,
-    collectionCount,
     isResolvingUri,
+    isResolvingCollectionClaims,
+    collectionItemUrls,
     // thumbnail,
     // title,
     claim,
-    channelClaim,
-    collectionItemUrls,
     blackListedOutpoints,
     filteredOutpoints,
     blockedChannelUris,
@@ -69,8 +64,8 @@ function CollectionPreviewTile(props: Props) {
     // pendingCollection,
     resolveCollectionItems,
   } = props;
-  const { push } = useHistory();
 
+  const { push } = useHistory();
   const hasClaim = Boolean(claim);
   React.useEffect(() => {
     if (collectionId && hasClaim && resolveCollectionItems) {
@@ -78,9 +73,25 @@ function CollectionPreviewTile(props: Props) {
     }
   }, [collectionId, hasClaim]);
 
-  const channelUrl = channelClaim && channelClaim.permanent_url;
   const signingChannel = claim && claim.signing_channel;
 
+  let navigateUrl = formatLbryUrlForWeb(collectionItemUrls[0] || '/');
+  if (collectionId) {
+    const collectionParams = new URLSearchParams();
+    collectionParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, collectionId);
+    navigateUrl = navigateUrl + `?` + collectionParams.toString();
+  }
+
+  function handleClick(e) {
+    if (navigateUrl) {
+      push(navigateUrl);
+    }
+  }
+
+  const navLinkProps = {
+    to: navigateUrl,
+    onClick: (e) => e.stopPropagation(),
+  };
   let shouldHide = false;
 
   if (isMature && !showMature) {
@@ -118,7 +129,7 @@ function CollectionPreviewTile(props: Props) {
     return null;
   }
 
-  if (isResolvingUri) {
+  if (isResolvingUri || isResolvingCollectionClaims) {
     return (
       <li className={classnames('claim-preview--tile', {})}>
         <div className="placeholder media__thumb" />
@@ -129,67 +140,38 @@ function CollectionPreviewTile(props: Props) {
       </li>
     );
   }
-
-  if (collectionItemUrls && collectionItemUrls.length > 0) {
-    return (
-      <li className="collection-preview claim-preview--tile">
-        <Card
-          title={
-            <Button
-              label={<div className="claim-grid__title">{collectionName}</div>}
-              button="link"
-              navigate={`/$/${PAGES.COLLECTION}/${collectionId}`}
-            />
-          }
-          role={'button'}
-          onClick={() => push(`/$/${PAGES.COLLECTION}/${collectionId}`)}
-          body={
-            <div className="collection-preview__items">
-              {collectionItemUrls.slice(0, 1).map((uri) => (
-                <ClaimPreviewTile collectionId={collectionId} uri={uri} key={'tile' + uri} />
-              ))}
-            </div>
-          }
-          actions={
-            <div className="claim-tile-collection__info">
-              {uri ? (
-                <React.Fragment>
-                  <UriIndicator uri={uri} link hideAnonymous>
-                    <ChannelThumbnail uri={channelUrl} />
-                  </UriIndicator>
-
-                  <div className="claim-tile__about">
-                    <UriIndicator uri={uri} link />
-                    <span>
-                      <DateTime timeAgo uri={uri} />
-                      <Icon icon={ICONS.STACK} />
-                      {collectionCount}
-                    </span>
-                  </div>
-                </React.Fragment>
-              ) : (
-                <span>
-                  Private
-                  <Icon icon={ICONS.STACK} />
-                  {collectionCount}
-                </span>
-              )}
-            </div>
-          }
-        />
-      </li>
-    );
+  if (uri) {
+    return <ClaimPreviewTile uri={uri} />;
   }
+
   return (
-    <li className="collection-preview claim-preview--tile">
-      <Card
-        title={<div className="claim-grid__title">{collectionName}</div>}
-        actions={
-          <div className="collection-preview__items">
-            <h1>No items</h1>
-          </div>
-        }
-      />
+    <li role="link" onClick={handleClick} className={'card claim-preview--tile'}>
+      <NavLink {...navLinkProps}>
+        <div className={classnames('media__thumb')}>
+          <React.Fragment>
+            <div className="claim-preview__collection-wrapper--unpublished">
+              <CollectionPreviewOverlay collectionId={collectionId} />
+            </div>
+            <div className="claim-preview__claim-property-overlay">
+              <CollectionCount count={5} />
+            </div>
+          </React.Fragment>
+        </div>
+      </NavLink>
+      <NavLink {...navLinkProps}>
+        <h2 className="claim-tile__title">
+          <TruncatedText text={collectionName} lines={1} />
+        </h2>
+      </NavLink>
+      <div>
+        <div className="claim-tile__info">
+          <React.Fragment>
+            <div className="claim-tile__about">
+              <CollectionPrivate />
+            </div>
+          </React.Fragment>
+        </div>
+      </div>
     </li>
   );
 }

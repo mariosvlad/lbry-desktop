@@ -1,30 +1,31 @@
 // @flow
-import * as MODALS from 'constants/modal_types';
-import * as ICONS from 'constants/icons';
+import { DOMAIN } from 'config';
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 import classnames from 'classnames';
-import { FormField } from 'component/common/form';
+import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
+import { isNameValid, regexInvalidURI } from 'lbry-redux';
 import Button from 'component/button';
 import TagsSearch from 'component/tagsSearch';
-import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
 import ErrorText from 'component/common/error-text';
-import CollectionThumbnail from 'component/fileThumbnail';
-import { isNameValid, regexInvalidURI } from 'lbry-redux';
+
 import ClaimAbandonButton from 'component/claimAbandonButton';
-import { useHistory } from 'react-router-dom';
-import { MINIMUM_PUBLISH_BID, INVALID_NAME_ERROR, ESTIMATED_FEE } from 'constants/claim';
-import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
-import Card from 'component/common/card';
-import * as PAGES from 'constants/pages';
-// import analytics from 'analytics';
-import LbcSymbol from 'component/common/lbc-symbol';
-import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import ChannelSelector from 'component/channelSelector';
-import { DOMAIN } from 'config';
 import ClaimList from 'component/claimList';
+import ChannelThumbnail from 'component/channelThumbnail';
+
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
+import LbcSymbol from 'component/common/lbc-symbol';
+import { FormField } from 'component/common/form';
+import Card from 'component/common/card';
+
+import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
+import { MINIMUM_PUBLISH_BID, INVALID_NAME_ERROR, ESTIMATED_FEE } from 'constants/claim';
+import SUPPORTED_LANGUAGES from 'constants/supported_languages';
+import * as PAGES from 'constants/pages';
 
 const LANG_NONE = 'none';
-
 const MAX_TAG_SELECT = 5;
 
 type Props = {
@@ -38,6 +39,14 @@ type Props = {
   tags: Array<string>,
   locations: Array<string>,
   languages: Array<string>,
+  uri: string,
+  disabled: boolean,
+  activeChannelClaim: ?ChannelClaim,
+  incognito: boolean,
+  collectionId: string,
+  collection: Collection,
+  collectionClaimIds: Array<string>,
+  collectionUrls: Array<string>,
   publishCollectionUpdate: (CollectionUpdateParams) => Promise<any>,
   updatingCollection: boolean,
   updateError: string,
@@ -50,14 +59,6 @@ type Props = {
     id: string,
     { onUpdate: (string) => void, assetName: string, helpText: string, currentValue: string, title: string }
   ) => void,
-  uri: string,
-  disabled: boolean,
-  activeChannelClaim: ?ChannelClaim,
-  incognito: boolean,
-  collectionId: string,
-  collection: Collection,
-  collectionClaimIds: Array<string>,
-  collectionUrls: Array<string>,
 };
 
 function CollectionForm(props: Props) {
@@ -78,7 +79,6 @@ function CollectionForm(props: Props) {
     publishCollection,
     creatingCollection,
     createError,
-    // clearCollectionErrors,
     openModal,
     disabled,
     activeChannelClaim,
@@ -114,9 +114,8 @@ function CollectionForm(props: Props) {
   }
 
   function getCollectionParams() {
-    // fill this in with sdk data
     const collectionParams: {
-      thumbnail_url?: string,
+      thumbnailUrl?: string,
       name?: string,
       description?: string,
       title?: string,
@@ -128,7 +127,7 @@ function CollectionForm(props: Props) {
       channel_id?: string,
       claims: ?Array<string>,
     } = {
-      thumbnail_url: thumbnailUrl,
+      thumbnailUrl: thumbnailUrl,
       description,
       bid: String(amount || 0.001),
       languages: languages || [],
@@ -204,7 +203,7 @@ function CollectionForm(props: Props) {
   }
 
   function handleThumbnailChange(thumbnailUrl: string) {
-    setParams({ ...params, thumbnail_url: thumbnailUrl });
+    setParams({ ...params, thumbnailUrl: thumbnailUrl });
   }
 
   function handleSubmit() {
@@ -259,7 +258,7 @@ function CollectionForm(props: Props) {
                     title: __('Edit Thumbnail Image'),
                     helpText: __('(1:1)'),
                     assetName: __('Thumbnail'),
-                    currentValue: params.thumbnail_url,
+                    currentValue: params.thumbnailUrl,
                   })
                 }
                 icon={ICONS.CAMERA}
@@ -269,7 +268,7 @@ function CollectionForm(props: Props) {
 
             <h1 className="channel__title">{params.title || (params.name && params.name) || collectionName}</h1>
             <h1 className="channel__title">{nameError && nameError}</h1>
-            <CollectionThumbnail uri={uri} thumbnailPreview={params.thumbnail_url} allowGifs showDelayedMessage />
+            <ChannelThumbnail thumbnailPreview={params.thumbnailUrl || thumbnailUrl} allowGifs showDelayedMessage />
           </div>
           <div className="channel-cover__gradient" />
         </header>
