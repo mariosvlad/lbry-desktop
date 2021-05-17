@@ -11,7 +11,7 @@ type Props = {
   builtin: any,
   published: any,
   unpublished: any,
-  addCollection: (string, string) => void,
+  addCollection: (string, Array<string>, string) => void,
   closeModal: () => void,
   uri: string,
 };
@@ -21,6 +21,7 @@ const ClaimCollectionAdd = (props: Props) => {
   const permanentUrl = claim && claim.permanent_url;
   const isChannel = claim && claim.value_type === 'channel';
 
+  const [addNewCollection, setAddNewCollection] = React.useState(false);
   const [newCollectionName, setNewCollectionName] = React.useState('');
 
   // TODO: when other collection types added, filter list in context
@@ -37,7 +38,7 @@ const ClaimCollectionAdd = (props: Props) => {
   }
 
   function handleAddCollection() {
-    addCollection(newCollectionName, isChannel ? 'collection' : 'playlist');
+    addCollection(newCollectionName, [permanentUrl], isChannel ? 'collection' : 'playlist');
     setNewCollectionName('');
   }
 
@@ -78,21 +79,26 @@ const ClaimCollectionAdd = (props: Props) => {
             </fieldset-section>
           )}
           <fieldset-section>
-            <FormField
-              type="text"
-              name="new_collection"
-              value={newCollectionName}
-              label={'New Collection Title'}
-              inputButton={
-                <Button
-                  button={'secondary'}
-                  icon={ICONS.ADD}
-                  disabled={!newCollectionName.length}
-                  onClick={() => handleAddCollection()}
-                />
-              }
-              onChange={handleNameInput}
-            />
+            {addNewCollection && (
+              <FormField
+                type="text"
+                name="new_collection"
+                value={newCollectionName}
+                label={'New Collection Title'}
+                inputButton={
+                  <Button
+                    button={'secondary'}
+                    icon={ICONS.ADD}
+                    disabled={!newCollectionName.length}
+                    onClick={() => handleAddCollection()}
+                  />
+                }
+                onChange={handleNameInput}
+              />
+            )}
+            {!addNewCollection && (
+              <Button button={'link'} label={'New Collection'} onClick={() => setAddNewCollection(true)} />
+            )}
           </fieldset-section>
           <div className="card__actions">
             <Button button="secondary" label={__('Done')} onClick={closeModal} />
