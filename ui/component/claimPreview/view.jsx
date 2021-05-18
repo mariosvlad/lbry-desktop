@@ -418,7 +418,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
             )}
           </div>
         </div>
-        {!hideMenu && <ClaimMenuList uri={uri} />}
+        {!hideMenu && <ClaimMenuList uri={uri} collectionId={collectionId} />}
       </>
     </WrapperElement>
   );

@@ -215,7 +215,7 @@ function ClaimPreviewTile(props: Props) {
               <UriIndicator uri={uri} />
             </div>
           )}
-          <ClaimMenuList uri={uri} />
+          <ClaimMenuList uri={uri} collectionId={collectionId} />
         </h2>
       </NavLink>
       <div>

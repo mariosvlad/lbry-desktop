@@ -25,6 +25,10 @@ type Props = {
   doCollectionEdit: (string, any) => void,
   hasClaimInWatchLater: boolean,
   doOpenModal: (string, {}) => void,
+  claimInCollection: boolean,
+  collectionName?: string,
+  collectionId: string,
+  isMyCollection: boolean,
 };
 
 function ClaimMenuList(props: Props) {
@@ -41,6 +45,10 @@ function ClaimMenuList(props: Props) {
     doCollectionEdit,
     hasClaimInWatchLater,
     doOpenModal,
+    collectionId,
+    claimInCollection,
+    collectionName,
+    isMyCollection,
   } = props;
 
   const { push } = useHistory();
@@ -92,7 +100,7 @@ function ClaimMenuList(props: Props) {
       </MenuButton>
       <MenuList className="menu__list">
         {/* if stream, add to watch later, add to collection modal */}
-        {isStream && (
+        {isStream && !collectionId && (
           <>
             <MenuItem
               className="comment__menu-option"
@@ -106,6 +114,21 @@ function ClaimMenuList(props: Props) {
               </div>
             </MenuItem>
           </>
+        )}
+        {collectionId && collectionName && isMyCollection && (
+          <MenuItem
+            className="comment__menu-option"
+            onSelect={() =>
+              doCollectionEdit(collectionId, { claims: [claim], remove: claimInCollection, type: 'playlist' })
+            }
+          >
+            <div className="menu__link">
+              <Icon aria-hidden icon={claimInCollection ? ICONS.DELETE : ICONS.STACK} />
+              {claimInCollection
+                ? __('Remove from  %collection%', { collection: collectionName })
+                : __('Add to %collection%', { collection: collectionName })}
+            </div>
+          </MenuItem>
         )}
         <MenuItem
           className="comment__menu-option"

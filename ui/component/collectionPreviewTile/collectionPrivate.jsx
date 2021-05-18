@@ -8,7 +8,7 @@ export default function collectionCount() {
   return (
     <div className={classnames('claim-properties', 'file-properties--small')}>
       <Icon icon={ICONS.LOCK} />
-      {__('Private')}
+      <div>{__('Private')}</div>
     </div>
   );
 }

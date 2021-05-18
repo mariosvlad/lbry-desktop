@@ -49,6 +49,7 @@ function CollectionPreviewTile(props: Props) {
     uri,
     collectionId,
     collectionName,
+    collectionCount,
     isResolvingUri,
     isResolvingCollectionClaims,
     collectionItemUrls,
@@ -153,7 +154,7 @@ function CollectionPreviewTile(props: Props) {
               <CollectionPreviewOverlay collectionId={collectionId} />
             </div>
             <div className="claim-preview__claim-property-overlay">
-              <CollectionCount count={5} />
+              <CollectionCount count={collectionCount} />
             </div>
           </React.Fragment>
         </div>

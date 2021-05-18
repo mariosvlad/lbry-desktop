@@ -4,6 +4,8 @@ import {
   makeSelectClaimForUri,
   makeSelectClaimIsMine,
   makeSelectCollectionForIdHasClaimUrl,
+  makeSelectNameForCollectionId,
+  makeSelectCollectionIsMine,
 } from 'lbry-redux';
 import { makeSelectChannelIsMuted } from 'redux/selectors/blocked';
 import { doToggleMuteChannel } from 'redux/actions/blocked';
@@ -21,6 +23,9 @@ const select = (state, props) => {
     hasClaimInWatchLater: makeSelectCollectionForIdHasClaimUrl('watchlater', permanentUri)(state),
     channelIsMuted: makeSelectChannelIsMuted(props.uri)(state),
     channelIsBlocked: makeSelectChannelIsBlocked(props.uri)(state),
+    claimInCollection: makeSelectCollectionForIdHasClaimUrl(props.collectionId, permanentUri)(state),
+    collectionName: makeSelectNameForCollectionId(props.collectionId)(state),
+    isMyCollection: makeSelectCollectionIsMine(props.collectionId)(state),
   };
 };
 

@@ -13,7 +13,7 @@ export default function collectionCount(props: Props) {
   return (
     <div className={classnames('claim-properties', 'file-properties--small')}>
       <Icon icon={ICONS.STACK} />
-      {count}
+      <div>{count}</div>
     </div>
   );
 }

@@ -28,7 +28,7 @@ export default function FileProperties(props: Props) {
         <>
           <ClaimType uri={uri} />
           {/*   // $FlowFixMe */}
-          {isCollection && claim && claim.value.claims && claim.value.claims.length}
+          {isCollection && claim && claim.value.claims && <div>{claim.value.claims.length}</div>}
           {isSubscribed && <Icon tooltip icon={ICONS.SUBSCRIBE} />}
           <FilePrice hideFree uri={uri} />
         </>
