@@ -276,10 +276,10 @@ function CollectionForm(props: Props) {
         <Tabs>
           <TabList className="tabs__list--channel-page">
             <Tab>{__('General')}</Tab>
-            <Tab>{__('Credit Details')}</Tab>
+            <Tab>{__('Items')}</Tab>
+            <Tab>{__('Credits')}</Tab>
             <Tab>{__('Tags')}</Tab>
             <Tab>{__('Other')}</Tab>
-            <Tab>{__('Items')}</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
@@ -332,6 +332,13 @@ function CollectionForm(props: Props) {
                     />
                   </>
                 }
+              />
+            </TabPanel>
+            <TabPanel>
+              <ClaimList
+                uris={collectionUrls}
+                // loading={isSearching}
+                collectionId={collectionId}
               />
             </TabPanel>
             <TabPanel>
@@ -424,13 +431,6 @@ function CollectionForm(props: Props) {
                     </FormField>
                   </>
                 }
-              />
-            </TabPanel>
-            <TabPanel>
-              <ClaimList
-                uris={collectionUrls}
-                // loading={isSearching}
-                collectionId={collectionId}
               />
             </TabPanel>
           </TabPanels>
