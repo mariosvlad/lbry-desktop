@@ -242,6 +242,8 @@ function CollectionForm(props: Props) {
       setParams({ ...params, channel_id: activeChannelId });
     }
   }, [activeChannelId]);
+  const itemError = !params.claims.length ? __('Cannot publish empty collection') : '';
+  const submitError = nameError || bidError || itemError || updateError || createError;
 
   return (
     <>
@@ -339,6 +341,7 @@ function CollectionForm(props: Props) {
                 uris={collectionUrls}
                 // loading={isSearching}
                 collectionId={collectionId}
+                empty={__('This collection has no items.')}
               />
             </TabPanel>
             <TabPanel>
@@ -442,14 +445,14 @@ function CollectionForm(props: Props) {
               <div className="section__actions">
                 <Button
                   button="primary"
-                  disabled={creatingCollection || updatingCollection || nameError || bidError}
+                  disabled={creatingCollection || updatingCollection || nameError || bidError || !params.claims.length}
                   label={creatingCollection || updatingCollection ? __('Submitting') : __('Submit')}
                   onClick={handleSubmit}
                 />
                 <Button button="link" label={__('Cancel')} onClick={onDone} />
               </div>
-              {updateError || createError ? (
-                <ErrorText>{updateError || createError}</ErrorText>
+              {submitError ? (
+                <ErrorText>{submitError}</ErrorText>
               ) : (
                 <p className="help">
                   {__('After submitting, it will take a few minutes for your changes to be live for everyone.')}

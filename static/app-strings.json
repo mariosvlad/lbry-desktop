@@ -1945,5 +1945,7 @@
   "Delete collection": "Delete collection",
   "Are you sure you'd like to remove collection %title%?": "Are you sure you'd like to remove collection %title%?",
   "Credits": "Credits",
+  "This collection has no items.": "This collection has no items.",
+  "Cannot publish empty collection": "Cannot publish empty collection",
   "--end--": "--end--"
 }
