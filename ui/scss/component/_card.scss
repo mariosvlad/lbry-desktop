@@ -285,6 +285,7 @@
   &.card__body--list {
     padding: 0;
     border-top: 1px solid var(--color-border);
+    margin-bottom: 0;
   }
 
   @media (max-width: $breakpoint-small) {

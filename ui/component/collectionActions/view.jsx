@@ -39,7 +39,7 @@ function CollectionActions(props: Props) {
     <>
       {/* Reactions didn't work - maybe only on web? */}
       {ENABLE_FILE_REACTIONS && uri && <FileReactions uri={uri} />}
-      <ClaimSupportButton uri={uri} fileAction />
+      {uri && <ClaimSupportButton uri={uri} fileAction />}
       {/* reposts need testing
               <Button
         button="alt"
@@ -53,14 +53,15 @@ function CollectionActions(props: Props) {
         onClick={handleRepostClick}
       />
          */}
-
-      <Button
-        className="button--file-action"
-        icon={ICONS.SHARE}
-        label={__('Share')}
-        title={__('Share')}
-        onClick={() => openModal(MODALS.SOCIAL_SHARE, { uri, webShareable })}
-      />
+      {uri && (
+        <Button
+          className="button--file-action"
+          icon={ICONS.SHARE}
+          label={__('Share')}
+          title={__('Share')}
+          onClick={() => openModal(MODALS.SOCIAL_SHARE, { uri, webShareable })}
+        />
+      )}
     </>
   );
 
@@ -96,14 +97,14 @@ function CollectionActions(props: Props) {
           navigate={`/$/${PAGES.REPORT_CONTENT}?claimId=${claimId}`}
         />
       )}
-      {
+      {uri && (
         <Button
           title={__('Info')}
           className="button--file-action"
           icon={ICONS.MORE}
           onClick={() => setShowInfo(!showInfo)}
         />
-      }
+      )}
     </>
   );
 

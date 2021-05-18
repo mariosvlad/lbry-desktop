@@ -10,6 +10,7 @@ import CollectionActions from 'component/collectionActions';
 import classnames from 'classnames';
 import ClaimAuthor from 'component/claimAuthor';
 import FileDescription from 'component/fileDescription';
+import { COLLECTIONS_CONSTS } from 'lbry-redux';
 
 export const PAGE_VIEW_QUERY = 'view';
 export const PUBLISH_PAGE = 'publish';
@@ -64,6 +65,7 @@ export default function CollectionPage(props: Props) {
   // const isClaim = Boolean(claim); do I need this for anything related to unpublished collection ids?
 
   const { name, totalItems } = collection || {};
+  const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_LISTS.includes(collectionId);
 
   const urlParams = new URLSearchParams(search);
   const editing = urlParams.get(PAGE_VIEW_QUERY) === EDIT_PAGE;
@@ -94,7 +96,11 @@ export default function CollectionPage(props: Props) {
         </span>
       }
       subtitle={subTitle}
-      body={<CollectionActions uri={uri} collectionId={collectionId} setShowInfo={setShowInfo} showInfo={showInfo} />}
+      body={
+        !isBuiltin && (
+          <CollectionActions uri={uri} collectionId={collectionId} setShowInfo={setShowInfo} showInfo={showInfo} />
+        )
+      }
       actions={
         showInfo &&
         uri && (

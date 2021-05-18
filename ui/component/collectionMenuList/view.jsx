@@ -1,5 +1,6 @@
 // @flow
 import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
 import React from 'react';
 import classnames from 'classnames';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
@@ -14,7 +15,7 @@ type Props = {
 };
 
 function ClaimMenuList(props: Props) {
-  const { inline = false, collectionId, collectionName } = props; // doOpenModal, for delete modal
+  const { inline = false, collectionId, collectionName, doOpenModal } = props; // doOpenModal, for delete modal
 
   // const { push } = useHistory(); for view link
 
@@ -39,7 +40,10 @@ function ClaimMenuList(props: Props) {
                 {__('View Collection')}
               </div>
             </MenuItem>
-            <MenuItem className="comment__menu-option" onSelect={() => alert('del')}>
+            <MenuItem
+              className="comment__menu-option"
+              onSelect={() => doOpenModal(MODALS.COLLECTION_DELETE, { collectionId })}
+            >
               <div className="menu__link">
                 <Icon aria-hidden icon={ICONS.DELETE} />
                 {__('Delete collection')}

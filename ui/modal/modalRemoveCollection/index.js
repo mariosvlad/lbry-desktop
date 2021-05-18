@@ -4,6 +4,7 @@ import {
   makeSelectIsAbandoningClaimForUri,
   doCollectionDelete,
   makeSelectClaimForClaimId,
+  makeSelectNameForCollectionId,
 } from 'lbry-redux';
 import { doHideModal } from 'redux/actions/app';
 import ModalRemoveCollection from './view';
@@ -16,6 +17,7 @@ const select = (state, props) => {
     uri,
     claimIsMine: makeSelectClaimIsMine(uri)(state),
     isAbandoning: makeSelectIsAbandoningClaimForUri(uri)(state),
+    collectionName: makeSelectNameForCollectionId(props.collectionId)(state),
   };
 };
 
