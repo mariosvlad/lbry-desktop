@@ -7,6 +7,7 @@ import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
 import TruncatedText from 'component/common/truncated-text';
 import CollectionCount from './collectionCount';
 import CollectionPrivate from './collectionPrivate';
+import CollectionMenuList from 'component/collectionMenuList';
 import { formatLbryUrlForWeb } from 'util/url';
 import { COLLECTIONS_CONSTS } from 'lbry-redux';
 
@@ -162,6 +163,7 @@ function CollectionPreviewTile(props: Props) {
       <NavLink {...navLinkProps}>
         <h2 className="claim-tile__title">
           <TruncatedText text={collectionName} lines={1} />
+          <CollectionMenuList collectionId={collectionId} />
         </h2>
       </NavLink>
       <div>
