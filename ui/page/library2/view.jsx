@@ -11,6 +11,7 @@ import CollectionsListMine from 'component/collectionsListMine';
 import usePersistedState from 'effects/use-persisted-state';
 import { Form, FormField } from 'component/common/form';
 import Icon from 'component/common/icon';
+import { SIMPLE_SITE } from 'config';
 
 // https://github.com/lbryio/lbry-sdk/issues/2964
 export const PURCHASES_PAGE_SIZE = 10;
@@ -47,6 +48,29 @@ function LibraryPage(props: Props) {
       setSearchQuery(value);
       replace(`?query=${value}&page=1`);
     }
+  }
+  if (SIMPLE_SITE) {
+    return (
+      <Page>
+        {loading && !hasDownloads && (
+          <div className="main--empty">
+            <Spinner delayed />
+          </div>
+        )}
+
+        {!loading && (
+          <>
+            <label className="claim-list__header-label">
+              <span>
+                <Icon icon={ICONS.STACK} size={10} />
+                {__('Collections')}
+              </span>
+            </label>
+            <CollectionsListMine />
+          </>
+        )}
+      </Page>
+    );
   }
 
   return (

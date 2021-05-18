@@ -225,6 +225,13 @@ function SideNavigation(props: Props) {
 
   if (!SIMPLE_SITE) {
     SIDE_LINKS.push(...FULL_LINKS);
+  } else {
+    SIDE_LINKS.push({
+      title: 'Library',
+      link: `/$/${PAGES.LIBRARY}`,
+      icon: ICONS.STACK,
+      hideForUnauth: true,
+    });
   }
 
   const [pulseLibrary, setPulseLibrary] = React.useState(false);
