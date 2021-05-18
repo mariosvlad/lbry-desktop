@@ -37,7 +37,7 @@
   position: relative;
 }
 
-.collection-title--hasEdits {
+.collection-title__hasEdits {
   color: var(--color-primary);
 }
 
@@ -55,14 +55,14 @@
   margin-right: var(--spacing-xs);
 }
 
-.collection-edit-buttons {
+.collection-preview__edit-buttons {
   display: flex;
   flex-direction: row;
   margin-top: var(--spacing-xs);
   margin-bottom: var(--spacing-xs);
 }
 
-.collection-edit-group {
+.collection-preview__edit-group {
   &:not(:last-of-type) {
     margin-right: var(--spacing-s);
   }
@@ -70,6 +70,39 @@
   button {
     @media (max-width: $breakpoint-small) {
       padding: var(--spacing-s) var(--spacing-s);
+    }
+  }
+}
+
+.collection-edit__header {
+  position: relative;
+  background-image: var(--color-card-background);
+  display: flex;
+  align-items: flex-end;
+  box-sizing: content-box;
+  color: #fff;
+}
+
+.collection-edit__thumb {
+  position: absolute;
+  top: 0;
+  left: var(--spacing-l);
+  margin-top: calc(var(--spacing-m) * 7);
+  z-index: $metadata-z-index;
+
+  > * {
+    padding: 0 var(--spacing-xs);
+
+    &:not(:last-child) {
+      margin-right: var(--spacing-m);
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    margin-top: 0;
+
+    .button {
+      margin-top: var(--spacing-l);
     }
   }
 }

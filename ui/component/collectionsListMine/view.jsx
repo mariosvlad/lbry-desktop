@@ -44,7 +44,7 @@ export default function CollectionsListMine(props: Props) {
           </div>
         );
       })}
-      {hasCollections && (
+      {Boolean(hasCollections) && (
         <div className="claim-grid__wrapper">
           <h1 className="claim-grid__header">
             <span className="claim-grid__title">{__('Playlists')}</span>
@@ -59,9 +59,7 @@ export default function CollectionsListMine(props: Props) {
                 ))}
               {publishedList &&
                 publishedList.length > 0 &&
-                publishedList.map((key) => {
-                  return <CollectionPreviewTile tileLayout collectionId={key} key={key} />;
-                })}
+                publishedList.map((key) => <CollectionPreviewTile tileLayout collectionId={key} key={key} />)}
             </div>
           </>
         </div>

@@ -92,7 +92,7 @@ export default function CollectionPage(props: Props) {
       title={
         <span>
           {claim ? claim.value.title || claim.name : collection.name}
-          {collectionHasEdits && <span className={'collection-title--hasEdits'}>*</span>}
+          {collectionHasEdits && <span className={'collection-title__hasEdits'}>(*)</span>}
         </span>
       }
       subtitle={subTitle}

@@ -1947,5 +1947,7 @@
   "Credits": "Credits",
   "This collection has no items.": "This collection has no items.",
   "Cannot publish empty collection": "Cannot publish empty collection",
+  "Sending": "Sending",
+  "You sent %lbc%": "You sent %lbc%",
   "--end--": "--end--"
 }

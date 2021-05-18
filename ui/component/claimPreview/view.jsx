@@ -332,8 +332,8 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                     {renderActions && claim && renderActions(claim)}
                     {Boolean(isMyCollection && collectionId) && (
                       <>
-                        <div className="collection-edit-buttons">
-                          <div className="collection-edit-group">
+                        <div className="collection-preview__edit-buttons">
+                          <div className="collection-preview__edit-group">
                             <Button
                               button="alt"
                               className={'button-collection-order'}
@@ -367,7 +367,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                               }}
                             />
                           </div>
-                          <div className="collection-edit-group">
+                          <div className="collection-preview__edit-group">
                             <Button
                               button="alt"
                               icon={ICONS.DELETE}

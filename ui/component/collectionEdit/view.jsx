@@ -248,9 +248,9 @@ function CollectionForm(props: Props) {
   return (
     <>
       <div className={classnames('main--contained', { 'card--disabled': disabled })}>
-        <header className="channel-cover">
+        <header className="collection-edit__header">
           <div className="channel__primary-info">
-            <div className="channel__edit-thumb">
+            <div className="collection-edit__thumb">
               <Button
                 button="alt"
                 title={__('Edit')}
@@ -268,8 +268,8 @@ function CollectionForm(props: Props) {
               />
             </div>
 
-            <h1 className="channel__title">{params.title || (params.name && params.name) || collectionName}</h1>
-            <h1 className="channel__title">{nameError && nameError}</h1>
+            {/* <h1 className="channel__title">{params.title || (params.name && params.name) || collectionName}</h1> */}
+            {/* <h1 className="channel__title">{nameError && nameError}</h1> */}
             <ChannelThumbnail thumbnailPreview={params.thumbnailUrl || thumbnailUrl} allowGifs showDelayedMessage />
           </div>
           <div className="channel-cover__gradient" />
