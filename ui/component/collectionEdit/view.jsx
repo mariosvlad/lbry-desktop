@@ -3,8 +3,6 @@ import { DOMAIN } from 'config';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import classnames from 'classnames';
-import * as ICONS from 'constants/icons';
-import * as MODALS from 'constants/modal_types';
 import { isNameValid, regexInvalidURI } from 'lbry-redux';
 import Button from 'component/button';
 import TagsSearch from 'component/tagsSearch';
@@ -13,7 +11,6 @@ import ErrorText from 'component/common/error-text';
 import ClaimAbandonButton from 'component/claimAbandonButton';
 import ChannelSelector from 'component/channelSelector';
 import ClaimList from 'component/claimList';
-import ChannelThumbnail from 'component/channelThumbnail';
 
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import LbcSymbol from 'component/common/lbc-symbol';
@@ -24,6 +21,7 @@ import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
 import { MINIMUM_PUBLISH_BID, INVALID_NAME_ERROR, ESTIMATED_FEE } from 'constants/claim';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import * as PAGES from 'constants/pages';
+import ThumbnailPicker from 'component/thumbnailPicker/view';
 
 const LANG_NONE = 'none';
 const MAX_TAG_SELECT = 5;
@@ -79,7 +77,6 @@ function CollectionForm(props: Props) {
     publishCollection,
     creatingCollection,
     createError,
-    openModal,
     disabled,
     activeChannelClaim,
     incognito,
@@ -115,7 +112,7 @@ function CollectionForm(props: Props) {
 
   function getCollectionParams() {
     const collectionParams: {
-      thumbnailUrl?: string,
+      thumbnail_url?: string,
       name?: string,
       description?: string,
       title?: string,
@@ -127,7 +124,7 @@ function CollectionForm(props: Props) {
       channel_id?: string,
       claims: ?Array<string>,
     } = {
-      thumbnailUrl: thumbnailUrl,
+      thumbnail_url: thumbnailUrl,
       description,
       bid: String(amount || 0.001),
       languages: languages || [],
@@ -203,7 +200,7 @@ function CollectionForm(props: Props) {
   }
 
   function handleThumbnailChange(thumbnailUrl: string) {
-    setParams({ ...params, thumbnailUrl: thumbnailUrl });
+    setParams({ ...params, thumbnail_url: thumbnailUrl });
   }
 
   function handleSubmit() {
@@ -248,37 +245,11 @@ function CollectionForm(props: Props) {
   return (
     <>
       <div className={classnames('main--contained', { 'card--disabled': disabled })}>
-        <header className="collection-edit__header">
-          <div className="channel__primary-info">
-            <div className="collection-edit__thumb">
-              <Button
-                button="alt"
-                title={__('Edit')}
-                onClick={() =>
-                  openModal(MODALS.IMAGE_UPLOAD, {
-                    onUpdate: (v) => handleThumbnailChange(v),
-                    title: __('Edit Thumbnail Image'),
-                    helpText: __('(1:1)'),
-                    assetName: __('Thumbnail'),
-                    currentValue: params.thumbnailUrl,
-                  })
-                }
-                icon={ICONS.CAMERA}
-                iconSize={18}
-              />
-            </div>
-
-            {/* <h1 className="channel__title">{params.title || (params.name && params.name) || collectionName}</h1> */}
-            {/* <h1 className="channel__title">{nameError && nameError}</h1> */}
-            <ChannelThumbnail thumbnailPreview={params.thumbnailUrl || thumbnailUrl} allowGifs showDelayedMessage />
-          </div>
-          <div className="channel-cover__gradient" />
-        </header>
-
         <Tabs>
           <TabList className="tabs__list--channel-page">
             <Tab>{__('General')}</Tab>
             <Tab>{__('Items')}</Tab>
+            <Tab>{__('Thumbnail')}</Tab>
             <Tab>{__('Credits')}</Tab>
             <Tab>{__('Tags')}</Tab>
             <Tab>{__('Other')}</Tab>
@@ -343,6 +314,9 @@ function CollectionForm(props: Props) {
                 collectionId={collectionId}
                 empty={__('This collection has no items.')}
               />
+            </TabPanel>
+            <TabPanel>
+              <ThumbnailPicker thumbnailParam={params.thumbnail_url} updateThumbnailParam={handleThumbnailChange} />
             </TabPanel>
             <TabPanel>
               <Card

@@ -134,8 +134,8 @@ export default function CollectionPage(props: Props) {
         noFooter
         noSideNavigation={editing}
         backout={{
-          title: __('Editing %collection%', { collection: name }),
-          simpleTitle: __('Editing'),
+          title: __('%action% %collection%', { collection: name, action: uri ? __('Editing') : __('Publishing') }),
+          simpleTitle: uri ? __('Editing') : __('Publishing'),
         }}
       >
         <CollectionEdit
