@@ -5,7 +5,8 @@ import React from 'react';
 import classnames from 'classnames';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import Icon from 'component/common/icon';
-// import { useHistory } from 'react-router';
+import * as PAGES from 'constants/pages';
+import { useHistory } from 'react-router';
 
 type Props = {
   inline?: boolean,
@@ -17,7 +18,7 @@ type Props = {
 function ClaimMenuList(props: Props) {
   const { inline = false, collectionId, collectionName, doOpenModal } = props; // doOpenModal, for delete modal
 
-  // const { push } = useHistory(); for view link
+  const { push } = useHistory();
 
   return (
     <Menu>
@@ -34,7 +35,7 @@ function ClaimMenuList(props: Props) {
         {/* if stream, add to watch later, add to collection modal */}
         {collectionId && collectionName && (
           <>
-            <MenuItem className="comment__menu-option" onSelect={() => alert('view')}>
+            <MenuItem className="comment__menu-option" onSelect={() => push(`/$/${PAGES.COLLECTION}/${collectionId}`)}>
               <div className="menu__link">
                 <Icon aria-hidden icon={ICONS.VIEW} />
                 {__('View Collection')}
