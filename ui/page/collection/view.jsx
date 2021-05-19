@@ -91,7 +91,7 @@ export default function CollectionPage(props: Props) {
     <Card
       title={
         <span>
-          {claim ? claim.value.title || claim.name : collection.name}
+          {claim ? claim.value.title || claim.name : collection && collection.name}
           {collectionHasEdits && <span className={'collection-title__hasEdits'}>(*)</span>}
         </span>
       }
@@ -141,8 +141,8 @@ export default function CollectionPage(props: Props) {
         <CollectionEdit
           uri={uri}
           collectionId={collectionId}
-          onDone={() => {
-            replace(`/$/${PAGES.COLLECTION}/${collectionId}`);
+          onDone={(id) => {
+            replace(`/$/${PAGES.COLLECTION}/${id}`);
           }}
         />
       </Page>
