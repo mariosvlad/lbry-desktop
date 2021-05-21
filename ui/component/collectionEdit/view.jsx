@@ -21,7 +21,7 @@ import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
 import { MINIMUM_PUBLISH_BID, INVALID_NAME_ERROR, ESTIMATED_FEE } from 'constants/claim';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import * as PAGES from 'constants/pages';
-import ThumbnailPicker from 'component/thumbnailPicker/view';
+import ThumbnailPicker from 'component/thumbnailPicker';
 
 const LANG_NONE = 'none';
 const MAX_TAG_SELECT = 5;
@@ -249,63 +249,69 @@ function CollectionForm(props: Props) {
           <TabList className="tabs__list--channel-page">
             <Tab>{__('General')}</Tab>
             <Tab>{__('Items')}</Tab>
-            <Tab>{__('Thumbnail')}</Tab>
             <Tab>{__('Credits')}</Tab>
             <Tab>{__('Tags')}</Tab>
             <Tab>{__('Other')}</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
-              <Card
-                body={
-                  <>
-                    <fieldset-group className="fieldset-group--smushed fieldset-group--disabled-prefix">
-                      <fieldset-section>
-                        <label htmlFor="channel_name">{__('Channel')}</label>
-                        <ChannelSelector />
-                      </fieldset-section>
-                    </fieldset-group>
-                    <fieldset-group class="fieldset-group--smushed fieldset-group--disabled-prefix">
-                      <fieldset-section>
-                        <label htmlFor="channel_name">{__('Name')}</label>
-                        <div className="form-field__prefix">{prefix}</div>
-                      </fieldset-section>
+              <div className={'card-stack'}>
+                <Card
+                  body={
+                    <>
+                      <fieldset-group className="fieldset-group--smushed fieldset-group--disabled-prefix">
+                        <fieldset-section>
+                          <label htmlFor="channel_name">{__('Channel')}</label>
+                          <ChannelSelector />
+                        </fieldset-section>
+                      </fieldset-group>
+                      <fieldset-group class="fieldset-group--smushed fieldset-group--disabled-prefix">
+                        <fieldset-section>
+                          <label htmlFor="channel_name">{__('Name')}</label>
+                          <div className="form-field__prefix">{prefix}</div>
+                        </fieldset-section>
+
+                        <FormField
+                          autoFocus={isNewCollection}
+                          type="text"
+                          name="channel_name"
+                          placeholder={__('MyAwesomeCollection')}
+                          value={params.name || collectionName}
+                          error={nameError}
+                          disabled={!isNewCollection}
+                          onChange={(e) => setParams({ ...params, name: e.target.value })}
+                        />
+                      </fieldset-group>
+                      {!isNewCollection && (
+                        <span className="form-field__help">{__('This field cannot be changed.')}</span>
+                      )}
 
                       <FormField
-                        autoFocus={isNewCollection}
                         type="text"
-                        name="channel_name"
-                        placeholder={__('MyAwesomeCollection')}
-                        value={params.name || collectionName}
-                        error={nameError}
-                        disabled={!isNewCollection}
-                        onChange={(e) => setParams({ ...params, name: e.target.value })}
+                        name="channel_title2"
+                        label={__('Title')}
+                        placeholder={__('My Awesome Collection')}
+                        value={params.title}
+                        onChange={(e) => setParams({ ...params, title: e.target.value })}
                       />
-                    </fieldset-group>
-                    {!isNewCollection && (
-                      <span className="form-field__help">{__('This field cannot be changed.')}</span>
-                    )}
-
-                    <FormField
-                      type="text"
-                      name="channel_title2"
-                      label={__('Title')}
-                      placeholder={__('My Awesome Collection')}
-                      value={params.title}
-                      onChange={(e) => setParams({ ...params, title: e.target.value })}
-                    />
-                    <FormField
-                      type="markdown"
-                      name="content_description2"
-                      label={__('Description')}
-                      placeholder={__('Description of your content')}
-                      value={params.description}
-                      onChange={(text) => setParams({ ...params, description: text })}
-                      textAreaMaxLength={FF_MAX_CHARS_IN_DESCRIPTION}
-                    />
-                  </>
-                }
-              />
+                      <ThumbnailPicker
+                        inline
+                        thumbnailParam={params.thumbnail_url}
+                        updateThumbnailParam={handleThumbnailChange}
+                      />
+                      <FormField
+                        type="markdown"
+                        name="content_description2"
+                        label={__('Description')}
+                        placeholder={__('Description of your content')}
+                        value={params.description}
+                        onChange={(text) => setParams({ ...params, description: text })}
+                        textAreaMaxLength={FF_MAX_CHARS_IN_DESCRIPTION}
+                      />
+                    </>
+                  }
+                />
+              </div>
             </TabPanel>
             <TabPanel>
               <ClaimList
@@ -314,9 +320,6 @@ function CollectionForm(props: Props) {
                 collectionId={collectionId}
                 empty={__('This collection has no items.')}
               />
-            </TabPanel>
-            <TabPanel>
-              <ThumbnailPicker thumbnailParam={params.thumbnail_url} updateThumbnailParam={handleThumbnailChange} />
             </TabPanel>
             <TabPanel>
               <Card

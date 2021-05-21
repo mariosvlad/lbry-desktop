@@ -8,6 +8,7 @@ import Button from 'component/button';
 import Card from 'component/common/card';
 import { generateThumbnailName } from 'util/generate-thumbnail-name';
 import usePersistedState from 'effects/use-persisted-state';
+import classnames from 'classnames';
 
 const accept = '.png, .jpg, .jpeg, .gif';
 const SPEECH_READY = 'READY';
@@ -38,18 +39,11 @@ function SelectAsset(props: Props) {
     }
   }, [pathSelected, fileSelected]);
 
-  function handleToggleMode() {
+  function handleToggleMode(useUrl) {
     setPathSelected('');
     setFileSelected(null);
     setUrl('');
-    // not sure if these need to be specific yet
-    if (useUrl) {
-      // we're switching to upload
-      setUseUrl(!useUrl);
-    } else {
-      // we're switching to url
-      setUseUrl(!useUrl);
-    }
+    setUseUrl(useUrl);
   }
 
   function doUploadAsset() {
@@ -100,8 +94,32 @@ function SelectAsset(props: Props) {
       status: fileSelected || pathSelected ? selectedLabel : selectFileLabel,
     });
   }
-  if (inline) {
-    return (
+  const formBody = (
+    <>
+      <div className={'section__header--actions'}>
+        <div>
+          <Button
+            button="alt"
+            className={classnames('button-toggle', {
+              'button-toggle--active': useUrl, // disable on upload status
+            })}
+            label={__('Url')}
+            onClick={() => {
+              handleToggleMode(true);
+            }}
+          />
+          <Button
+            button="alt"
+            className={classnames('button-toggle', {
+              'button-toggle--active': !useUrl, // disable on upload status
+            })}
+            label={__('Upload')}
+            onClick={() => {
+              handleToggleMode(false);
+            }}
+          />
+        </div>
+      </div>
       <fieldset-section>
         {error && <div className="error__text">{error}</div>}
         {useUrl ? (
@@ -110,7 +128,7 @@ function SelectAsset(props: Props) {
             type={'text'}
             name={'thumbnail'}
             label={label}
-            placeholder={'https://example.com/image.png'}
+            placeholder={`https://example.com/image.png`}
             value={url}
             onChange={(e) => {
               setUrl(e.target.value);
@@ -135,74 +153,18 @@ function SelectAsset(props: Props) {
             accept={accept}
           />
         )}
-
-        <div className="section__actions">
-          {onDone && (
-            <Button button="primary" type="submit" label={__('Done')} disabled={uploadStatus === SPEECH_UPLOADING} />
-          )}
-          <FormField
-            name="toggle-upload"
-            type="checkbox"
-            label={__('Use a URL')}
-            checked={useUrl}
-            onChange={handleToggleMode}
-          />
-        </div>
       </fieldset-section>
-    );
+    </>
+  );
+
+  if (inline) {
+    return <fieldset-section>{formBody}</fieldset-section>;
   }
 
   return (
     <Card
-      title={title || __('Choose image')}
-      actions={
-        <Form onSubmit={onDone}>
-          {error && <div className="error__text">{error}</div>}
-          {useUrl ? (
-            <FormField
-              autoFocus
-              type={'text'}
-              name={'thumbnail'}
-              label={label}
-              placeholder={'https://example.com/image.png'}
-              value={url}
-              onChange={(e) => {
-                setUrl(e.target.value);
-                onUpdate(e.target.value);
-              }}
-            />
-          ) : (
-            <FileSelector
-              autoFocus
-              disabled={uploadStatus === SPEECH_UPLOADING}
-              label={fileSelectorLabel}
-              name="assetSelector"
-              currentPath={pathSelected}
-              onFileChosen={(file) => {
-                if (file.name) {
-                  setFileSelected(file);
-                  // file.path is undefined in web but available in electron
-                  setPathSelected(file.name || file.path);
-                }
-              }}
-              accept={accept}
-            />
-          )}
-
-          <div className="section__actions">
-            {onDone && (
-              <Button button="primary" type="submit" label={__('Done')} disabled={uploadStatus === SPEECH_UPLOADING} />
-            )}
-            <FormField
-              name="toggle-upload"
-              type="checkbox"
-              label={__('Use a URL')}
-              checked={useUrl}
-              onChange={() => setUseUrl(!useUrl)}
-            />
-          </div>
-        </Form>
-      }
+      title={title || __('Choose %asset%', { asset: __(`${assetName}`) })}
+      actions={<Form onSubmit={onDone}>{formBody}</Form>}
     />
   );
 }

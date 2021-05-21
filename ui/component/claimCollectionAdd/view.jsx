@@ -44,7 +44,7 @@ const ClaimCollectionAdd = (props: Props) => {
 
   return (
     <Card
-      title={__('Add to collection')}
+      title={__('Add to Collection')}
       actions={
         <div className="card__body">
           {uri && (

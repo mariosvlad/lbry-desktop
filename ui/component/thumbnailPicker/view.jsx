@@ -9,10 +9,11 @@ type Props = {
   thumbnailParam: string,
   thumbnailForUri: string,
   updateThumbnailParam: (string) => void,
+  inline?: boolean,
 };
 
 const ThumbnailPicker = (props: Props) => {
-  const { thumbnailForUri, thumbnailParam, updateThumbnailParam } = props;
+  const { thumbnailForUri, thumbnailParam, updateThumbnailParam, inline } = props;
 
   // uploadThumbnailStatus
   //       {status === THUMBNAIL_STATUSES.API_DOWN || status === THUMBNAIL_STATUSES.MANUAL ? (
@@ -24,6 +25,48 @@ const ThumbnailPicker = (props: Props) => {
     setThumbError(false);
     updateThumbnailParam(thumb);
   };
+  if (inline) {
+    return (
+      <fieldset-section>
+        <label>{__('Thumbnail')}</label>
+        <div className="column">
+          {thumbError && (
+            <div
+              className="column__item thumbnail-picker__preview"
+              style={{ backgroundImage: `url(${ThumbnailMissingImage})` }}
+            />
+          )}
+          {!thumbError && (
+            <div
+              className="column__item thumbnail-picker__preview"
+              style={{ backgroundImage: `url(${thumbnailParam || thumbnailForUri})` }}
+            >
+              <img
+                style={{ display: 'none' }}
+                src={thumbnailParam || thumbnailForUri}
+                alt={__('Thumbnail Preview')}
+                onError={() => {
+                  if (thumbnailParam) {
+                    setThumbError(true);
+                  }
+                }}
+              />
+            </div>
+          )}
+          <div className="column__item">
+            {/* if upload */}
+            <SelectAsset
+              inline
+              onUpdate={updateThumb}
+              currentValue={thumbnailParam}
+              assetName={'Image'}
+              recommended={'(16:9)'}
+            />
+          </div>
+        </div>
+      </fieldset-section>
+    );
+  }
 
   return (
     <div>

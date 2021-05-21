@@ -136,11 +136,11 @@ function ClaimMenuList(props: Props) {
         >
           <div className="menu__link">
             <Icon aria-hidden icon={ICONS.STACK} />
-            {__('Edit Collections')}
+            {__('Add to Collections')}
           </div>
         </MenuItem>
         <hr className="menu__separator" />
-        {!claimIsMine && (
+        {!claimIsMine && !isMyCollection && (
           <>
             <MenuItem className="comment__menu-option" onSelect={handleToggleBlock}>
               <div className="menu__link">
@@ -167,7 +167,7 @@ function ClaimMenuList(props: Props) {
           </div>
         </MenuItem>
 
-        {!claimIsMine && (
+        {!claimIsMine && !isMyCollection && (
           <MenuItem className="comment__menu-option" onSelect={handleReportContent}>
             <div className="menu__link">
               <Icon aria-hidden icon={ICONS.REPORT} />
