@@ -37,8 +37,14 @@ declare type CommentsState = {
   myReactsByCommentId: any,
   othersReactsByCommentId: any,
   pendingCommentReactions: Array<string>,
-  moderationBlockList: ?Array<string>,
+  moderationBlockList: ?Array<string>, // @KP rename to "personalBlockList"?
+  adminBlockList: ?Array<string>,
+  moderatorBlockList: ?Array<string>,
   fetchingModerationBlockList: boolean,
+  moderationDelegatesById: { [string]: Array<{ channelId: string, channelName: string }> },
+  fetchingModerationDelegates: boolean,
+  moderationDelegatorsById: { [string]: { global: boolean, delegators: { name: string, claimId: string } }},
+  fetchingModerationDelegators: boolean,
   blockingByUri: {},
   unBlockingByUri: {},
   commentsDisabledChannelIds: Array<string>,
@@ -87,6 +93,38 @@ declare type CommentCreateParams = {
 declare type SuperListParams = {};
 
 declare type ModerationBlockParams = {};
+
+declare type ModerationAddDelegateParams = {
+  mod_channel_id: string,
+  mod_channel_name: string,
+  creator_channel_id: string,
+  creator_channel_name: string,
+  signature: string,
+  signing_ts: string,
+};
+
+declare type ModerationRemoveDelegateParams = {
+  mod_channel_id: string,
+  mod_channel_name: string,
+  creator_channel_id: string,
+  creator_channel_name: string,
+  signature: string,
+  signing_ts: string,
+};
+
+declare type ModerationListDelegatesParams = {
+  creator_channel_id: string,
+  creator_channel_name: string,
+  signature: string,
+  signing_ts: string,
+};
+
+declare type ModerationAmIParams = {
+  channel_name: string,
+  channel_id: string,
+  signature: string,
+  signing_ts: string
+};
 
 declare type SettingsParams = {
   channel_name: string,

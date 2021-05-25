@@ -21,7 +21,13 @@ const defaultState: CommentsState = {
   myReactsByCommentId: undefined,
   othersReactsByCommentId: undefined,
   moderationBlockList: undefined,
+  adminBlockList: undefined,
+  moderatorBlockList: undefined,
   fetchingModerationBlockList: false,
+  moderationDelegatesById: {},
+  fetchingModerationDelegates: false,
+  moderationDelegatorsById: {},
+  fetchingModerationDelegators: false,
   blockingByUri: {},
   unBlockingByUri: {},
   commentsDisabledChannelIds: [],
@@ -391,11 +397,13 @@ export default handleActions(
       fetchingModerationBlockList: true,
     }),
     [ACTIONS.COMMENT_MODERATION_BLOCK_LIST_COMPLETED]: (state: CommentsState, action: any) => {
-      const { blockList } = action.data;
+      const { personalBlockList, adminBlockList, moderatorBlockList } = action.data;
 
       return {
         ...state,
-        moderationBlockList: blockList,
+        moderationBlockList: personalBlockList,
+        adminBlockList: adminBlockList,
+        moderatorBlockList: moderatorBlockList,
         fetchingModerationBlockList: false,
       };
     },
@@ -473,6 +481,52 @@ export default handleActions(
         ...state,
         unBlockingByUri,
         moderationBlockList: newModerationBlockList,
+      };
+    },
+
+    [ACTIONS.COMMENT_FETCH_MODERATION_DELEGATES_STARTED]: (state: CommentsState, action: any) => ({
+      ...state,
+      fetchingModerationDelegates: true,
+    }),
+    [ACTIONS.COMMENT_FETCH_MODERATION_DELEGATES_FAILED]: (state: CommentsState, action: any) => ({
+      ...state,
+      fetchingModerationDelegates: false,
+    }),
+    [ACTIONS.COMMENT_FETCH_MODERATION_DELEGATES_COMPLETED]: (state: CommentsState, action: any) => {
+      const moderationDelegatesById = Object.assign({}, state.moderationDelegatesById);
+      if (action.data.delegates) {
+        moderationDelegatesById[action.data.id] = action.data.delegates.map((delegate) => {
+          return {
+            channelId: delegate.channel_id,
+            channelName: delegate.channel_name,
+          };
+        });
+      } else {
+        moderationDelegatesById[action.data.id] = [];
+      }
+
+      return {
+        ...state,
+        fetchingModerationDelegates: false,
+        moderationDelegatesById: moderationDelegatesById,
+      };
+    },
+
+    [ACTIONS.COMMENT_MODERATION_AM_I_LIST_STARTED]: (state: CommentsState, action: any) => ({
+      ...state,
+      fetchingModerationDelegators: true,
+    }),
+
+    [ACTIONS.COMMENT_MODERATION_AM_I_LIST_FAILED]: (state: CommentsState, action: any) => ({
+      ...state,
+      fetchingModerationDelegators: true,
+    }),
+
+    [ACTIONS.COMMENT_MODERATION_AM_I_LIST_COMPLETED]: (state: CommentsState, action: any) => {
+      return {
+        ...state,
+        fetchingModerationDelegators: true,
+        moderationDelegatorsById: action.data,
       };
     },
 

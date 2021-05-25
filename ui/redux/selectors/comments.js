@@ -16,14 +16,34 @@ export const selectCommentsDisabledChannelIds = createSelector(
   (state) => state.commentsDisabledChannelIds
 );
 export const selectOthersReactsById = createSelector(selectState, (state) => state.othersReactsByCommentId);
+
 export const selectModerationBlockList = createSelector(selectState, (state) =>
   state.moderationBlockList ? state.moderationBlockList.reverse() : []
 );
+export const selectAdminBlockList = createSelector(selectState, (state) =>
+  state.adminBlockList ? state.adminBlockList.reverse() : []
+);
+export const selectModeratorBlockList = createSelector(selectState, (state) =>
+  state.moderatorBlockList ? state.moderatorBlockList.reverse() : []
+);
+
 export const selectBlockingByUri = createSelector(selectState, (state) => state.blockingByUri);
 export const selectUnBlockingByUri = createSelector(selectState, (state) => state.unBlockingByUri);
 export const selectFetchingModerationBlockList = createSelector(
   selectState,
   (state) => state.fetchingModerationBlockList
+);
+
+export const selectModerationDelegatesById = createSelector(selectState, (state) => state.moderationDelegatesById);
+export const selectIsFetchingModerationDelegates = createSelector(
+  selectState,
+  (state) => state.fetchingModerationDelegates
+);
+
+export const selectModerationDelegatorsById = createSelector(selectState, (state) => state.moderationDelegatorsById);
+export const selectIsFetchingModerationDelegators = createSelector(
+  selectState,
+  (state) => state.fetchingModerationDelegators
 );
 
 export const selectCommentsByClaimId = createSelector(selectState, selectCommentsById, (state, byId) => {
@@ -298,6 +318,7 @@ export const makeSelectTotalCommentsCountForUri = (uri: string) =>
     return comments ? comments.length : 0;
   });
 
+// Personal list
 export const makeSelectChannelIsBlocked = (uri: string) =>
   createSelector(selectModerationBlockList, (blockedChannelUris) => {
     if (!blockedChannelUris || !blockedChannelUris) {
@@ -305,6 +326,16 @@ export const makeSelectChannelIsBlocked = (uri: string) =>
     }
 
     return blockedChannelUris.includes(uri);
+  });
+
+export const makeSelectChannelIsAdminBlocked = (uri: string) =>
+  createSelector(selectAdminBlockList, (list) => {
+    return list ? list.includes(uri) : false;
+  });
+
+export const makeSelectChannelIsModeratorBlocked = (uri: string) =>
+  createSelector(selectModeratorBlockList, (list) => {
+    return list ? list.includes(uri) : false;
   });
 
 export const makeSelectUriIsBlockingOrUnBlocking = (uri: string) =>

@@ -1,7 +1,7 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import * as REACTION_TYPES from 'constants/reactions';
-import { Lbry, parseURI, buildURI, selectClaimsByUri, selectMyChannelClaims } from 'lbry-redux';
+import { Lbry, parseURI, buildURI, selectClaimsById, selectClaimsByUri, selectMyChannelClaims } from 'lbry-redux';
 import { doToast, doSeeNotifications } from 'redux/actions/notifications';
 import {
   makeSelectCommentIdsForUri,
@@ -9,6 +9,7 @@ import {
   makeSelectOthersReactionsForComment,
   selectPendingCommentReacts,
   selectModerationBlockList,
+  selectModerationDelegatorsById,
 } from 'redux/selectors/comments';
 import { makeSelectNotificationForCommentId } from 'redux/selectors/notifications';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
@@ -522,42 +523,64 @@ async function channelSignName(channelClaimId: string, channelName: string) {
 }
 
 // Hides a users comments from all creator's claims and prevent them from commenting in the future
-export function doCommentModToggleBlock(channelUri: string, unblock: boolean = false) {
+function doCommentModToggleBlock(
+  unblock: boolean,
+  commenterUri: string,
+  creatorId: string,
+  blockerIds: Array<string>, // [] = use all my channels
+  asAdmin: boolean
+) {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    const myChannels = selectMyChannelClaims(state);
-    const claim = selectClaimsByUri(state)[channelUri];
 
-    if (!claim) {
+    let blockerChannelClaims = selectMyChannelClaims(state);
+    if (blockerIds.length !== 0) {
+      blockerChannelClaims = blockerChannelClaims.filter((x) => blockerIds.includes(x.claim_id));
+    }
+    if (asAdmin && blockerIds.length === 0) {
+      const delegatorsById = selectModerationDelegatorsById(state);
+      blockerChannelClaims = blockerChannelClaims.filter(
+        (x) => delegatorsById[x.claim_id] && delegatorsById[x.claim_id].global
+      );
+    }
+
+    const commenterClaim = selectClaimsByUri(state)[commenterUri];
+    if (!commenterClaim) {
       console.error("Can't find claim to block"); // eslint-disable-line
+      return;
+    }
+
+    const creatorClaim = selectClaimsById(state)[creatorId];
+    if (creatorId && !creatorClaim) {
+      console.error("Can't find creator claim"); // eslint-disable-line
       return;
     }
 
     dispatch({
       type: unblock ? ACTIONS.COMMENT_MODERATION_UN_BLOCK_STARTED : ACTIONS.COMMENT_MODERATION_BLOCK_STARTED,
       data: {
-        uri: channelUri,
+        uri: commenterUri,
       },
     });
 
-    const creatorIdForAction = claim ? claim.claim_id : null;
-    const creatorNameForAction = claim ? claim.name : null;
+    const commenterIdForAction = commenterClaim ? commenterClaim.claim_id : null;
+    const commenterNameForAction = commenterClaim ? commenterClaim.name : null;
 
     let channelSignatures = [];
 
     const sharedModBlockParams = unblock
       ? {
-          un_blocked_channel_id: creatorIdForAction,
-          un_blocked_channel_name: creatorNameForAction,
+          un_blocked_channel_id: commenterIdForAction,
+          un_blocked_channel_name: commenterNameForAction,
         }
       : {
-          blocked_channel_id: creatorIdForAction,
-          blocked_channel_name: creatorNameForAction,
+          blocked_channel_id: commenterIdForAction,
+          blocked_channel_name: commenterNameForAction,
         };
 
     const commentAction = unblock ? Comments.moderation_unblock : Comments.moderation_block;
 
-    return Promise.all(myChannels.map((channel) => channelSignName(channel.claim_id, channel.name)))
+    return Promise.all(blockerChannelClaims.map((x) => channelSignName(x.claim_id, x.name)))
       .then((response) => {
         channelSignatures = response;
         // $FlowFixMe
@@ -570,14 +593,38 @@ export function doCommentModToggleBlock(channelUri: string, unblock: boolean = f
                 mod_channel_name: signatureData.name,
                 signature: signatureData.signature,
                 signing_ts: signatureData.signing_ts,
+                creator_channel_id: creatorClaim ? creatorClaim.claim_id : undefined,
+                creator_channel_name: creatorClaim ? creatorClaim.name : undefined,
+                block_all: unblock ? undefined : asAdmin,
+                global_un_block: unblock ? asAdmin : undefined,
                 ...sharedModBlockParams,
               })
             )
         )
-          .then(() => {
+          .then((response) => {
+            const failures = [];
+
+            response.forEach((res, index) => {
+              if (res.status === 'rejected') {
+                // TODO: This should be error codes
+                if (res.reason.message !== 'validation is disallowed for non controlling channels') {
+                  failures.push(channelSignatures[index].name + ': ' + res.reason.message);
+                }
+              }
+            });
+
+            if (failures.length !== 0) {
+              dispatch(doToast({ message: failures.join(), isError: true }));
+              dispatch({
+                type: unblock ? ACTIONS.COMMENT_MODERATION_UN_BLOCK_FAILED : ACTIONS.COMMENT_MODERATION_BLOCK_FAILED,
+                data: { uri: commenterUri },
+              });
+              return;
+            }
+
             dispatch({
               type: unblock ? ACTIONS.COMMENT_MODERATION_UN_BLOCK_COMPLETE : ACTIONS.COMMENT_MODERATION_BLOCK_COMPLETE,
-              data: { channelUri },
+              data: { channelUri: commenterUri },
             });
 
             if (!unblock) {
@@ -587,26 +634,96 @@ export function doCommentModToggleBlock(channelUri: string, unblock: boolean = f
           .catch(() => {
             dispatch({
               type: unblock ? ACTIONS.COMMENT_MODERATION_UN_BLOCK_FAILED : ACTIONS.COMMENT_MODERATION_BLOCK_FAILED,
+              data: { uri: commenterUri },
             });
           });
       })
       .catch(() => {
         dispatch({
           type: unblock ? ACTIONS.COMMENT_MODERATION_UN_BLOCK_FAILED : ACTIONS.COMMENT_MODERATION_BLOCK_FAILED,
+          data: { uri: commenterUri },
         });
       });
   };
 }
 
-export function doCommentModBlock(commentAuthor: string) {
+/**
+ * Blocks the commenter for all channels that I own.
+ *
+ * @param commenterUri
+ * @returns {function(Dispatch): *}
+ */
+export function doCommentModBlock(commenterUri: string) {
   return (dispatch: Dispatch) => {
-    return dispatch(doCommentModToggleBlock(commentAuthor));
+    return dispatch(doCommentModToggleBlock(false, commenterUri, '', [], false));
   };
 }
 
-export function doCommentModUnBlock(commentAuthor: string) {
+/**
+ * Blocks the commenter using the given channel that has Global privileges.
+ *
+ * @param commenterUri
+ * @param blockerId
+ * @returns {function(Dispatch): *}
+ */
+export function doCommentModBlockAsAdmin(commenterUri: string, blockerId: string) {
   return (dispatch: Dispatch) => {
-    return dispatch(doCommentModToggleBlock(commentAuthor, true));
+    return dispatch(doCommentModToggleBlock(false, commenterUri, '', blockerId ? [blockerId] : [], true));
+  };
+}
+
+/**
+ * Blocks the commenter using the given channel that has been granted
+ * moderation rights by the creator.
+ *
+ * @param commenterUri
+ * @param creatorId
+ * @param blockerId
+ * @returns {function(Dispatch): *}
+ */
+export function doCommentModBlockAsModerator(commenterUri: string, creatorId: string, blockerId: string) {
+  return (dispatch: Dispatch) => {
+    return dispatch(doCommentModToggleBlock(false, commenterUri, creatorId, [blockerId], false));
+  };
+}
+
+/**
+ * Unblocks the commenter for all channels that I own.
+ *
+ * @param commenterUri
+ * @returns {function(Dispatch): *}
+ */
+export function doCommentModUnBlock(commenterUri: string) {
+  return (dispatch: Dispatch) => {
+    return dispatch(doCommentModToggleBlock(true, commenterUri, '', [], false));
+  };
+}
+
+/**
+ * Unblocks the commenter using the given channel that has Global privileges.
+ *
+ * @param commenterUri
+ * @param blockerId
+ * @returns {function(Dispatch): *}
+ */
+export function doCommentModUnBlockAsAdmin(commenterUri: string, blockerId: string) {
+  return (dispatch: Dispatch) => {
+    return dispatch(doCommentModToggleBlock(true, commenterUri, '', blockerId ? [blockerId] : [], true));
+  };
+}
+
+/**
+ * Unblocks the commenter using the given channel that has been granted
+ * moderation rights by the creator.
+ *
+ * @param commenterUri
+ * @param creatorId
+ * @param blockerId
+ * @returns {function(Dispatch): *}
+ */
+export function doCommentModUnBlockAsModerator(commenterUri: string, creatorId: string, blockerId: string) {
+  return (dispatch: Dispatch) => {
+    return dispatch(doCommentModToggleBlock(true, commenterUri, creatorId, [blockerId], false));
   };
 }
 
@@ -638,36 +755,62 @@ export function doFetchModBlockedList() {
             )
         )
           .then((res) => {
-            const blockLists = res.map((r) => r.value);
-            let globalBlockList = [];
-            blockLists
+            const blockListsPerChannel = res.map((r) => r.value);
+            let personalBlockList = [];
+            let adminBlockList = [];
+            let moderatorBlockList = [];
+
+            blockListsPerChannel
               .sort((a, b) => {
                 return 1;
               })
               .forEach((channelBlockListData) => {
-                const blockListForChannel = channelBlockListData && channelBlockListData.blocked_channels;
-                if (blockListForChannel) {
-                  blockListForChannel.forEach((blockedChannel) => {
-                    if (blockedChannel.blocked_channel_name) {
-                      const channelUri = buildURI({
-                        channelName: blockedChannel.blocked_channel_name,
-                        claimId: blockedChannel.blocked_channel_id,
-                      });
+                const processAndStoreList = (fetchedList, processedList) => {
+                  if (fetchedList) {
+                    fetchedList.forEach((blockedChannel) => {
+                      if (blockedChannel.blocked_channel_name) {
+                        const channelUri = buildURI({
+                          channelName: blockedChannel.blocked_channel_name,
+                          claimId: blockedChannel.blocked_channel_id,
+                        });
 
-                      if (!globalBlockList.find((blockedChannel) => blockedChannel.channelUri === channelUri)) {
-                        globalBlockList.push({ channelUri, blockedAt: blockedChannel.blocked_at });
+                        if (!processedList.find((blockedChannel) => blockedChannel.channelUri === channelUri)) {
+                          processedList.push({ channelUri, blockedAt: blockedChannel.blocked_at });
+                        }
                       }
-                    }
-                  });
-                }
+                    });
+                  }
+                };
+
+                const blocked_channels = channelBlockListData && channelBlockListData.blocked_channels;
+                const globally_blocked_channels =
+                  channelBlockListData && channelBlockListData.globally_blocked_channels;
+                const delegated_blocked_channels =
+                  channelBlockListData && channelBlockListData.delegated_blocked_channels;
+
+                processAndStoreList(blocked_channels, personalBlockList);
+                processAndStoreList(globally_blocked_channels, adminBlockList);
+                processAndStoreList(delegated_blocked_channels, moderatorBlockList);
               });
 
             dispatch({
               type: ACTIONS.COMMENT_MODERATION_BLOCK_LIST_COMPLETED,
               data: {
-                blockList:
-                  globalBlockList.length > 0
-                    ? globalBlockList
+                personalBlockList:
+                  personalBlockList.length > 0
+                    ? personalBlockList
+                        .sort((a, b) => new Date(a.blockedAt) - new Date(b.blockedAt))
+                        .map((blockedChannel) => blockedChannel.channelUri)
+                    : null,
+                adminBlockList:
+                  adminBlockList.length > 0
+                    ? adminBlockList
+                        .sort((a, b) => new Date(a.blockedAt) - new Date(b.blockedAt))
+                        .map((blockedChannel) => blockedChannel.channelUri)
+                    : null,
+                moderatorBlockList:
+                  moderatorBlockList.length > 0
+                    ? moderatorBlockList
                         .sort((a, b) => new Date(a.blockedAt) - new Date(b.blockedAt))
                         .map((blockedChannel) => blockedChannel.channelUri)
                     : null,
@@ -726,6 +869,189 @@ export const doUpdateBlockListForPublishedChannel = (channelClaim: ChannelClaim)
     );
   };
 };
+
+export function doCommentModAddDelegate(
+  modChannelId: string,
+  modChannelName: string,
+  creatorChannelClaim: ChannelClaim
+) {
+  return async (dispatch: Dispatch, getState: GetState) => {
+    let signature: ?{
+      signature: string,
+      signing_ts: string,
+    };
+    try {
+      signature = await Lbry.channel_sign({
+        channel_id: creatorChannelClaim.claim_id,
+        hexdata: toHex(creatorChannelClaim.name),
+      });
+    } catch (e) {}
+
+    if (!signature) {
+      return;
+    }
+
+    return Comments.moderation_add_delegate({
+      mod_channel_id: modChannelId,
+      mod_channel_name: modChannelName,
+      creator_channel_id: creatorChannelClaim.claim_id,
+      creator_channel_name: creatorChannelClaim.name,
+      signature: signature.signature,
+      signing_ts: signature.signing_ts,
+    }).catch((err) => {
+      dispatch(
+        doToast({
+          message: err.message,
+          isError: true,
+        })
+      );
+    });
+  };
+}
+
+export function doCommentModRemoveDelegate(
+  modChannelId: string,
+  modChannelName: string,
+  creatorChannelClaim: ChannelClaim
+) {
+  return async (dispatch: Dispatch, getState: GetState) => {
+    let signature: ?{
+      signature: string,
+      signing_ts: string,
+    };
+    try {
+      signature = await Lbry.channel_sign({
+        channel_id: creatorChannelClaim.claim_id,
+        hexdata: toHex(creatorChannelClaim.name),
+      });
+    } catch (e) {}
+
+    if (!signature) {
+      return;
+    }
+
+    return Comments.moderation_remove_delegate({
+      mod_channel_id: modChannelId,
+      mod_channel_name: modChannelName,
+      creator_channel_id: creatorChannelClaim.claim_id,
+      creator_channel_name: creatorChannelClaim.name,
+      signature: signature.signature,
+      signing_ts: signature.signing_ts,
+    }).catch((err) => {
+      dispatch(
+        doToast({
+          message: err.message,
+          isError: true,
+        })
+      );
+    });
+  };
+}
+
+export function doCommentModListDelegates(channelClaim: ChannelClaim) {
+  return async (dispatch: Dispatch, getState: GetState) => {
+    dispatch({
+      type: ACTIONS.COMMENT_FETCH_MODERATION_DELEGATES_STARTED,
+    });
+
+    let signature: ?{
+      signature: string,
+      signing_ts: string,
+    };
+    try {
+      signature = await Lbry.channel_sign({
+        channel_id: channelClaim.claim_id,
+        hexdata: toHex(channelClaim.name),
+      });
+    } catch (e) {}
+
+    if (!signature) {
+      dispatch({
+        type: ACTIONS.COMMENT_FETCH_MODERATION_DELEGATES_FAILED,
+      });
+      return;
+    }
+
+    return Comments.moderation_list_delegates({
+      creator_channel_id: channelClaim.claim_id,
+      creator_channel_name: channelClaim.name,
+      signature: signature.signature,
+      signing_ts: signature.signing_ts,
+    })
+      .then((response) => {
+        dispatch({
+          type: ACTIONS.COMMENT_FETCH_MODERATION_DELEGATES_COMPLETED,
+          data: {
+            id: channelClaim.claim_id,
+            delegates: response.Delegates,
+          },
+        });
+      })
+      .catch((err) => {
+        dispatch({
+          type: ACTIONS.COMMENT_FETCH_MODERATION_DELEGATES_FAILED,
+        });
+      });
+  };
+}
+
+export function doFetchCommentModAmIList(channelClaim: ChannelClaim) {
+  return async (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const myChannels = selectMyChannelClaims(state);
+
+    dispatch({
+      type: ACTIONS.COMMENT_MODERATION_AM_I_LIST_STARTED,
+    });
+
+    let channelSignatures = [];
+
+    return Promise.all(myChannels.map((channel) => channelSignName(channel.claim_id, channel.name)))
+      .then((response) => {
+        channelSignatures = response;
+        // $FlowFixMe
+        return Promise.allSettled(
+          channelSignatures
+            .filter((x) => x !== undefined && x !== null)
+            .map((signatureData) =>
+              Comments.moderation_am_i({
+                channel_name: signatureData.name,
+                channel_id: signatureData.claim_id,
+                signature: signatureData.signature,
+                signing_ts: signatureData.signing_ts,
+              })
+            )
+        )
+          .then((res) => {
+            const delegatorsById = {};
+
+            channelSignatures.forEach((chanSig, index) => {
+              const value = res[index].value;
+
+              delegatorsById[chanSig.claim_id] = {
+                global: value ? value.type === 'Global' : false,
+                delegators: value && value.authorized_channels ? value.authorized_channels : {},
+              };
+            });
+
+            dispatch({
+              type: ACTIONS.COMMENT_MODERATION_AM_I_LIST_COMPLETED,
+              data: delegatorsById,
+            });
+          })
+          .catch((err) => {
+            dispatch({
+              type: ACTIONS.COMMENT_MODERATION_AM_I_LIST_FAILED,
+            });
+          });
+      })
+      .catch(() => {
+        dispatch({
+          type: ACTIONS.COMMENT_MODERATION_AM_I_LIST_FAILED,
+        });
+      });
+  };
+}
 
 export const doFetchCreatorSettings = (channelClaimIds: Array<string> = []) => {
   return async (dispatch: Dispatch, getState: GetState) => {
