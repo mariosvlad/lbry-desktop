@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import type { ElementRef } from 'react';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import { FormField } from 'component/common/form';
@@ -18,6 +19,7 @@ type Props = {
 
 const ClaimCollectionAdd = (props: Props) => {
   const { builtin, published, unpublished, addCollection, claim, closeModal, uri } = props;
+  const buttonref: ElementRef<any> = React.useRef();
   const permanentUrl = claim && claim.permanent_url;
   const isChannel = claim && claim.value_type === 'channel';
 
@@ -40,6 +42,22 @@ const ClaimCollectionAdd = (props: Props) => {
   function handleAddCollection() {
     addCollection(newCollectionName, [permanentUrl], isChannel ? 'collection' : 'playlist');
     setNewCollectionName('');
+  }
+
+  function altEnterListener(e: SyntheticKeyboardEvent<*>) {
+    const KEYCODE_ENTER = 13;
+    if (e.keyCode === KEYCODE_ENTER) {
+      e.preventDefault();
+      buttonref.current.click();
+    }
+  }
+
+  function onTextareaFocus() {
+    window.addEventListener('keydown', altEnterListener);
+  }
+
+  function onTextareaBlur() {
+    window.removeEventListener('keydown', altEnterListener);
   }
 
   return (
@@ -86,12 +104,15 @@ const ClaimCollectionAdd = (props: Props) => {
                 name="new_collection"
                 value={newCollectionName}
                 label={'New Collection Title'}
+                onFocus={onTextareaFocus}
+                onBlur={onTextareaBlur}
                 inputButton={
                   <Button
                     button={'secondary'}
                     icon={ICONS.ADD}
                     disabled={!newCollectionName.length}
                     onClick={() => handleAddCollection()}
+                    ref={buttonref}
                   />
                 }
                 onChange={handleNameInput}

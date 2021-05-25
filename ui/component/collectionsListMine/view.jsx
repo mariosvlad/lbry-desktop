@@ -29,18 +29,25 @@ export default function CollectionsListMine(props: Props) {
     <>
       {builtinCollectionsList.map((list: Collection) => {
         const { items: itemUrls } = list;
-        if (!itemUrls.length) return null;
         return (
           <div className="claim-grid__wrapper" key={list.name}>
-            <h1 className="claim-grid__header">
-              <Button
-                className="claim-grid__title"
-                button="link"
-                navigate={`/$/collection/${list.id}`}
-                label={list.name}
+            <>
+              <h1 className="claim-grid__header">
+                <Button
+                  className="claim-grid__title"
+                  button="link"
+                  navigate={`/$/collection/${list.id}`}
+                  label={list.name}
+                />
+              </h1>
+              <ClaimList
+                tileLayout
+                key={list.name}
+                uris={itemUrls}
+                collectionId={list.id}
+                empty={__('Nothing in %collection_name%', { collection_name: list.name })}
               />
-            </h1>
-            <ClaimList tileLayout key={list.name} uris={itemUrls} collectionId={list.id} />
+            </>
           </div>
         );
       })}
