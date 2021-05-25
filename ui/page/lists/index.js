@@ -12,7 +12,7 @@ import {
   // selectSavedCollections,
 } from 'lbry-redux';
 
-import LibraryPage from './view';
+import ListsPage from './view';
 
 const select = (state) => ({
   allDownloadedUrlsCount: selectDownloadUrlsCount(state),
@@ -28,4 +28,4 @@ const select = (state) => ({
 
 export default connect(select, {
   doPurchaseList,
-})(LibraryPage);
+})(ListsPage);

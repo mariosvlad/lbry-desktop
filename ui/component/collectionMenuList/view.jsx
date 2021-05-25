@@ -32,7 +32,6 @@ function ClaimMenuList(props: Props) {
         <Icon size={20} icon={ICONS.MORE_VERTICAL} />
       </MenuButton>
       <MenuList className="menu__list">
-        {/* if stream, add to watch later, add to collection modal */}
         {collectionId && collectionName && (
           <>
             <MenuItem className="comment__menu-option" onSelect={() => push(`/$/${PAGES.COLLECTION}/${collectionId}`)}>

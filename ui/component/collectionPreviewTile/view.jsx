@@ -151,7 +151,7 @@ function CollectionPreviewTile(props: Props) {
       <NavLink {...navLinkProps}>
         <div className={classnames('media__thumb')}>
           <React.Fragment>
-            <div className="claim-preview__collection-wrapper--unpublished">
+            <div className="claim-preview__collection-wrapper">
               <CollectionPreviewOverlay collectionId={collectionId} />
             </div>
             <div className="claim-preview__claim-property-overlay">

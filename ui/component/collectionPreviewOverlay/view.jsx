@@ -21,8 +21,17 @@ function CollectionPreviewTileOverlay(props: Props) {
   if (collectionItemUrls && collectionItemUrls.length > 0) {
     return (
       <div className="collection-preview__overlay-thumbs">
-        <div className="collection-preview__overlay-quad">
-          <FileThumbnail uri={collectionItemUrls[0]} key={collectionItemUrls[0]} />
+        <div className="collection-preview__overlay-grid">
+          {collectionItemUrls &&
+            collectionItemUrls.map((item, index) => {
+              if (index < 4) {
+                return (
+                  <div className="collection-preview__overlay-grid-items">
+                    <FileThumbnail uri={item} key={item} />
+                  </div>
+                );
+              }
+            })}
         </div>
       </div>
     );

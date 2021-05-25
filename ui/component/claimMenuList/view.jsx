@@ -14,7 +14,7 @@ const SHARE_DOMAIN = SHARE_DOMAIN_URL || URL;
 
 type Props = {
   uri: string,
-  claim: ?Claim,
+  claim: Claim,
   inline?: boolean,
   claimIsMine: boolean,
   channelIsMuted: boolean,
@@ -53,15 +53,17 @@ function ClaimMenuList(props: Props) {
 
   const { push } = useHistory();
 
-  const channelUri =
-    claim &&
-    (claim.value_type === 'channel'
+  const channelUri = claim
+    ? claim.value_type === 'channel'
       ? claim.permanent_url
-      : claim.signing_channel && claim.signing_channel.permanent_url);
+      : (claim.signing_channel && claim.signing_channel.permanent_url) || ''
+    : '';
 
   const shareUrl: string = generateShareUrl(SHARE_DOMAIN, uri);
+  const isCollectionClaim = claim && claim.value_type === 'collection';
 
-  if (!channelUri || !claim) {
+  if (!claim) {
+    // TODO: allow copying collection link
     return null;
   }
 
@@ -99,7 +101,7 @@ function ClaimMenuList(props: Props) {
         <Icon size={20} icon={ICONS.MORE_VERTICAL} />
       </MenuButton>
       <MenuList className="menu__list">
-        {/* if stream, add to watch later, add to collection modal */}
+        {/* WATCH LATER */}
         {isStream && !collectionId && (
           <>
             <MenuItem
@@ -115,7 +117,8 @@ function ClaimMenuList(props: Props) {
             </MenuItem>
           </>
         )}
-        {collectionId && collectionName && isMyCollection && (
+        {/* ADD/REMOVE CURRENT COLLECTION... */}
+        {collectionId && collectionName && false && (
           <MenuItem
             className="comment__menu-option"
             onSelect={() =>
@@ -130,17 +133,37 @@ function ClaimMenuList(props: Props) {
             </div>
           </MenuItem>
         )}
+        {/* COLLECTION OPERATIONS */}
+        {collectionId && collectionName && isCollectionClaim && (
+          <>
+            <MenuItem className="comment__menu-option" onSelect={() => push(`/$/${PAGES.COLLECTION}/${collectionId}`)}>
+              <div className="menu__link">
+                <Icon aria-hidden icon={ICONS.VIEW} />
+                {__('Edit Collection')}
+              </div>
+            </MenuItem>
+            <MenuItem
+              className="comment__menu-option"
+              onSelect={() => doOpenModal(MODALS.COLLECTION_DELETE, { collectionId })}
+            >
+              <div className="menu__link">
+                <Icon aria-hidden icon={ICONS.DELETE} />
+                {__('Delete collection')}
+              </div>
+            </MenuItem>
+          </>
+        )}
         <MenuItem
           className="comment__menu-option"
           onSelect={() => doOpenModal(MODALS.COLLECTION_ADD, { uri, type: 'playlist' })}
         >
           <div className="menu__link">
             <Icon aria-hidden icon={ICONS.STACK} />
-            {__('Add to Collections')}
+            {__('Add to Lists')}
           </div>
         </MenuItem>
         <hr className="menu__separator" />
-        {!claimIsMine && !isMyCollection && (
+        {channelUri && !claimIsMine && !isMyCollection && (
           <>
             <MenuItem className="comment__menu-option" onSelect={handleToggleBlock}>
               <div className="menu__link">

@@ -23,7 +23,8 @@ import RewardsPage from 'page/rewards';
 import FileListPublished from 'page/fileListPublished';
 import InvitePage from 'page/invite';
 import SearchPage from 'page/search';
-import LibraryPage from 'page/library2';
+import ListsPage from 'page/lists';
+import LibraryPage from 'page/library';
 import WalletPage from 'page/wallet';
 import TagsFollowingPage from 'page/tagsFollowing';
 import ChannelsFollowingPage from 'page/channelsFollowing';
@@ -282,6 +283,7 @@ function AppRouter(props: Props) {
       <PrivateRoute {...props} path={`/$/${PAGES.REWARDS}`} exact component={RewardsPage} />
       <PrivateRoute {...props} path={`/$/${PAGES.REWARDS_VERIFY}`} component={RewardsVerifyPage} />
       <PrivateRoute {...props} path={`/$/${PAGES.LIBRARY}`} component={LibraryPage} />
+      <PrivateRoute {...props} path={`/$/${PAGES.LISTS}`} component={ListsPage} />
       <PrivateRoute {...props} path={`/$/${PAGES.TAGS_FOLLOWING_MANAGE}`} component={TagsFollowingManagePage} />
       <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_BLOCKED_MUTED}`} component={ListBlockedPage} />
       <PrivateRoute {...props} path={`/$/${PAGES.WALLET}`} exact component={WalletPage} />

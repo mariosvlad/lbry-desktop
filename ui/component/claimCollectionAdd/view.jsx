@@ -44,7 +44,7 @@ const ClaimCollectionAdd = (props: Props) => {
 
   return (
     <Card
-      title={__('Add to Collection')}
+      title={__('Add To...')}
       actions={
         <div className="card__body">
           {uri && (
@@ -81,6 +81,7 @@ const ClaimCollectionAdd = (props: Props) => {
           <fieldset-section>
             {addNewCollection && (
               <FormField
+                autoFocus
                 type="text"
                 name="new_collection"
                 value={newCollectionName}
@@ -97,7 +98,7 @@ const ClaimCollectionAdd = (props: Props) => {
               />
             )}
             {!addNewCollection && (
-              <Button button={'link'} label={'New Collection'} onClick={() => setAddNewCollection(true)} />
+              <Button button={'link'} label={'New List'} onClick={() => setAddNewCollection(true)} />
             )}
           </fieldset-section>
           <div className="card__actions">

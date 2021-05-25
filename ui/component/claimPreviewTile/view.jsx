@@ -76,10 +76,10 @@ function ClaimPreviewTile(props: Props) {
   const thumbnailUrl = useGetThumbnail(uri, claim, streamingUrl, getFile, placeholder) || thumbnail;
   const canonicalUrl = claim && claim.canonical_url;
   let navigateUrl = formatLbryUrlForWeb(canonicalUrl || uri || '/');
-  const colId = collectionId || collectionClaimId;
-  if (colId) {
+  const listId = collectionId || collectionClaimId;
+  if (listId) {
     const collectionParams = new URLSearchParams();
-    collectionParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, colId);
+    collectionParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, listId);
     if (collectionIndex) collectionParams.set(COLLECTIONS_CONSTS.COLLECTION_INDEX, collectionIndex);
     navigateUrl = navigateUrl + `?` + collectionParams.toString();
   }
@@ -182,13 +182,13 @@ function ClaimPreviewTile(props: Props) {
           {!isChannel && !isCollection && (
             <React.Fragment>
               {/* @if TARGET='app' */}
-              {!colId && (
+              {!listId && (
                 <div className="claim-preview__hover-actions">
                   <FileDownloadLink uri={canonicalUrl} hideOpenButton />
                 </div>
               )}
               {/* @endif */}
-              {!colId && (
+              {!listId && (
                 <div className="claim-preview__file-property-overlay">
                   <FileProperties uri={uri} small properties={properties} />
                 </div>
@@ -198,7 +198,7 @@ function ClaimPreviewTile(props: Props) {
           {isCollection && (
             <React.Fragment>
               <div className="claim-preview__collection-wrapper">
-                <CollectionPreviewOverlay collectionId={colId} uri={uri} />
+                <CollectionPreviewOverlay collectionId={listId} uri={uri} />
               </div>
               <div className="claim-preview__claim-property-overlay">
                 <ClaimProperties uri={uri} small properties={properties} />
@@ -215,7 +215,7 @@ function ClaimPreviewTile(props: Props) {
               <UriIndicator uri={uri} />
             </div>
           )}
-          <ClaimMenuList uri={uri} collectionId={collectionId} />
+          <ClaimMenuList uri={uri} collectionId={listId} />
         </h2>
       </NavLink>
       <div>

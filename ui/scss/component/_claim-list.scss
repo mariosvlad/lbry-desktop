@@ -630,21 +630,6 @@
   bottom: 0;
   right: 0;
   left: 0;
-  opacity: 0;
-  &:hover {
-    opacity: 0.8;
-    background-color: var(--color-black);
-  }
-  z-index: 2;
-}
-
-.claim-preview__collection-wrapper--unpublished {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  left: 0;
-  opacity: 1;
   z-index: 2;
 }
 

@@ -150,12 +150,14 @@ export default function CollectionPage(props: Props) {
   }
   // some kind of header here?
   // pass up, down, delete controls through claim list
-  return (
-    <Page>
-      <div className={classnames('section card-stack')}>
-        {info}
-        <ClaimList uris={collectionUrls} collectionId={collectionId} />
-      </div>
-    </Page>
-  );
+  if (urlsReady) {
+    return (
+      <Page>
+        <div className={classnames('section card-stack')}>
+          {info}
+          <ClaimList uris={collectionUrls} collectionId={collectionId} />
+        </div>
+      </Page>
+    );
+  }
 }

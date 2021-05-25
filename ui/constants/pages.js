@@ -22,6 +22,7 @@ exports.WILD_WEST = 'wildwest';
 exports.HOME = 'home';
 exports.HELP = 'help';
 exports.LIBRARY = 'library';
+exports.LISTS = 'lists';
 exports.INVITE = 'invite';
 exports.DEPRECATED__PUBLISH = 'publish';
 exports.DEPRECATED__PUBLISHED = 'published';

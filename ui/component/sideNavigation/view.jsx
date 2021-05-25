@@ -227,8 +227,8 @@ function SideNavigation(props: Props) {
     SIDE_LINKS.push(...FULL_LINKS);
   } else {
     SIDE_LINKS.push({
-      title: 'Library',
-      link: `/$/${PAGES.LIBRARY}`,
+      title: 'Lists',
+      link: `/$/${PAGES.LISTS}`,
       icon: ICONS.STACK,
       hideForUnauth: true,
     });

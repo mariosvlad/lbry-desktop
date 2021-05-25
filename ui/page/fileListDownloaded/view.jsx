@@ -1,19 +1,15 @@
 // @flow
-import * as ICONS from 'constants/icons';
-import React, { useState } from 'react';
+import React from 'react';
 import Button from 'component/button';
 import ClaimList from 'component/claimList';
 import Paginate from 'component/common/paginate';
 import { PAGE_SIZE } from 'constants/claim';
-import Icon from 'component/common/icon';
 
 import { withRouter } from 'react-router';
-import classnames from 'classnames';
 import Yrbl from 'component/yrbl';
 import { PURCHASES_PAGE_SIZE } from 'page/library/view';
-import Spinner from 'component/spinner';
-import { VIEW_DOWNLOADS, VIEW_PURCHASES } from 'page/library2/view';
-
+const VIEW_DOWNLOADS = 'view_download';
+const VIEW_PURCHASES = 'view_purchases';
 type Props = {
   fetchingFileList: boolean,
   downloadedUrls: Array<string>,
@@ -31,9 +27,7 @@ type Props = {
 
 function FileListDownloaded(props: Props) {
   const {
-    history,
     query,
-    page,
     viewMode,
     downloadedUrlsCount,
     myPurchasesCount,
