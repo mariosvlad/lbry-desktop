@@ -97,15 +97,18 @@ function CollectionActions(props: Props) {
           navigate={`/$/${PAGES.REPORT_CONTENT}?claimId=${claimId}`}
         />
       )}
-      {uri && (
-        <Button
-          title={__('Info')}
-          className="button--file-action"
-          icon={ICONS.MORE}
-          onClick={() => setShowInfo(!showInfo)}
-        />
-      )}
     </>
+  );
+
+  const infoButton = (
+    <Button
+      title={__('Info')}
+      className={classnames('button-toggle', {
+        'button-toggle--active': showInfo,
+      })}
+      icon={ICONS.MORE}
+      onClick={() => setShowInfo(!showInfo)}
+    />
   );
 
   if (isMobile) {
@@ -113,15 +116,17 @@ function CollectionActions(props: Props) {
       <div className="media__actions">
         {lhsSection}
         {rhsSection}
+        {uri && <span>{infoButton}</span>}
       </div>
     );
   } else {
     return (
-      <div className="media__actions">
-        <div className="section__actions section__actions--no-margin">
+      <div className="section__actions section__actions--between section__actions--no-margin">
+        <span>
           {lhsSection}
           {rhsSection}
-        </div>
+        </span>
+        {uri && <>{infoButton}</>}
       </div>
     );
   }

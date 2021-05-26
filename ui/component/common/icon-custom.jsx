@@ -548,6 +548,13 @@ export const icons = {
       <circle cx="12" cy="19" r="1" />
     </g>
   ),
+  [ICONS.MORE]: buildIcon(
+    <g transform="rotate(90 12 12)">
+      <circle cx="12" cy="5" r="1" />
+      <circle cx="12" cy="12" r="1" />
+      <circle cx="12" cy="19" r="1" />
+    </g>
+  ),
   [ICONS.VALIDATED]: buildIcon(
     <g>
       <polyline points="20 6 9 17 4 12" />
@@ -731,22 +738,6 @@ export const icons = {
         <polyline points="15 18 9 12 15 6" stroke="black" transform="translate(6,12)" strokeWidth="2" />
         <polyline points="9 18 15 12 9 6" stroke="black" transform="translate(20,12)" strokeWidth="2" />
       </g>
-    </g>,
-    {
-      viewBox: '0 0 60 60',
-    }
-  ),
-  [ICONS.MORE]: buildIcon(
-    <g>
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M0 30C0 13.4315 13.4315 0 30 0C46.5685 0 60 13.4315 60 30C60 46.5685 46.5685 60 30 60C13.4315 60 0 46.5685 0 30Z"
-        fill="#eee"
-      />
-      <circle cx="20" cy="30" r="2" stroke="black" fill="black" />
-      <circle cx="30" cy="30" r="2" stroke="black" fill="black" />
-      <circle cx="40" cy="30" r="2" stroke="black" fill="black" />
     </g>,
     {
       viewBox: '0 0 60 60',
