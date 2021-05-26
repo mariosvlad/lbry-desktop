@@ -108,7 +108,7 @@ export default function CollectionPage(props: Props) {
         showInfo &&
         uri && (
           <div className="section">
-            <FileDescription uri={uri} />
+            <FileDescription uri={uri} expandOverride />
           </div>
         )
       }
