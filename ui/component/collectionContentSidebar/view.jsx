@@ -4,6 +4,8 @@ import ClaimList from 'component/claimList';
 import Card from 'component/common/card';
 import Button from 'component/button';
 import * as PAGES from 'constants/pages';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
 
 type Props = {
   collectionUrls: Array<Claim>,
@@ -24,7 +26,12 @@ export default function CollectionContent(props: Props) {
     <Card
       isBodyList
       className="file-page__recommended"
-      title={__('Playlist') + ': ' + collectionName}
+      title={
+        <span>
+          <Icon icon={ICONS.STACK} className="icon__left" />
+          {collectionName}
+        </span>
+      }
       titleActions={
         <>
           {claim && !isMine && (

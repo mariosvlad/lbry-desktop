@@ -8,7 +8,7 @@ import FileRenderInitiator from 'component/fileRenderInitiator';
 import FileRenderInline from 'component/fileRenderInline';
 import FileRenderDownload from 'component/fileRenderDownload';
 import RecommendedContent from 'component/recommendedContent';
-import CollectionContent from 'component/collectionContent';
+import CollectionContent from 'component/collectionContentSidebar';
 import CommentsList from 'component/commentsList';
 import PostViewer from 'component/postViewer';
 import Empty from 'component/common/empty';

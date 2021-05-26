@@ -11,6 +11,8 @@ import classnames from 'classnames';
 import ClaimAuthor from 'component/claimAuthor';
 import FileDescription from 'component/fileDescription';
 import { COLLECTIONS_CONSTS } from 'lbry-redux';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
 
 export const PAGE_VIEW_QUERY = 'view';
 export const PUBLISH_PAGE = 'publish';
@@ -91,6 +93,7 @@ export default function CollectionPage(props: Props) {
     <Card
       title={
         <span>
+          <Icon icon={ICONS.STACK} className="icon__left" />
           {claim ? claim.value.title || claim.name : collection && collection.name}
           {collectionHasEdits && <span className={'collection-title__hasEdits'}>(*)</span>}
         </span>
