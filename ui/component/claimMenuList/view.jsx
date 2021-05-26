@@ -14,7 +14,7 @@ const SHARE_DOMAIN = SHARE_DOMAIN_URL || URL;
 
 type Props = {
   uri: string,
-  claim: Claim,
+  claim: GenericClaim,
   inline?: boolean,
   claimIsMine: boolean,
   channelIsMuted: boolean,
@@ -46,13 +46,14 @@ function ClaimMenuList(props: Props) {
     hasClaimInWatchLater,
     doOpenModal,
     collectionId,
-    claimInCollection,
     collectionName,
     isMyCollection,
   } = props;
 
   const { push } = useHistory();
-
+  if (!claim) {
+    return null;
+  }
   const channelUri = claim
     ? claim.value_type === 'channel'
       ? claim.permanent_url
@@ -61,13 +62,14 @@ function ClaimMenuList(props: Props) {
 
   const shareUrl: string = generateShareUrl(SHARE_DOMAIN, uri);
   const isCollectionClaim = claim && claim.value_type === 'collection';
-
-  if (!claim) {
-    // TODO: allow copying collection link
-    return null;
-  }
-
-  const isStream = claim.value_type === 'stream';
+  // $FlowFixMe
+  const isPlayable =
+    claim &&
+    !claim.repost_url &&
+    // $FlowFixMe
+    claim.value.stream_type &&
+    // $FlowFixMe
+    (claim.value.stream_type === 'audio' || claim.value.stream_type === 'video');
 
   function handleToggleMute() {
     doToggleMuteChannel(channelUri);
@@ -102,7 +104,7 @@ function ClaimMenuList(props: Props) {
       </MenuButton>
       <MenuList className="menu__list">
         {/* WATCH LATER */}
-        {isStream && !collectionId && (
+        {isPlayable && !collectionId && (
           <>
             <MenuItem
               className="comment__menu-option"
@@ -116,22 +118,6 @@ function ClaimMenuList(props: Props) {
               </div>
             </MenuItem>
           </>
-        )}
-        {/* ADD/REMOVE CURRENT COLLECTION... */}
-        {collectionId && collectionName && false && (
-          <MenuItem
-            className="comment__menu-option"
-            onSelect={() =>
-              doCollectionEdit(collectionId, { claims: [claim], remove: claimInCollection, type: 'playlist' })
-            }
-          >
-            <div className="menu__link">
-              <Icon aria-hidden icon={claimInCollection ? ICONS.DELETE : ICONS.STACK} />
-              {claimInCollection
-                ? __('Remove from  %collection%', { collection: collectionName })
-                : __('Add to %collection%', { collection: collectionName })}
-            </div>
-          </MenuItem>
         )}
         {/* COLLECTION OPERATIONS */}
         {collectionId && collectionName && isCollectionClaim && (
@@ -153,15 +139,18 @@ function ClaimMenuList(props: Props) {
             </MenuItem>
           </>
         )}
-        <MenuItem
-          className="comment__menu-option"
-          onSelect={() => doOpenModal(MODALS.COLLECTION_ADD, { uri, type: 'playlist' })}
-        >
-          <div className="menu__link">
-            <Icon aria-hidden icon={ICONS.STACK} />
-            {__('Add to Lists')}
-          </div>
-        </MenuItem>
+        {/* CURRENTLY ONLY SUPPORT PLAYLISTS FOR PLAYABLE; LATER DIFFERENT TYPES */}
+        {isPlayable && (
+          <MenuItem
+            className="comment__menu-option"
+            onSelect={() => doOpenModal(MODALS.COLLECTION_ADD, { uri, type: 'playlist' })}
+          >
+            <div className="menu__link">
+              <Icon aria-hidden icon={ICONS.STACK} />
+              {__('Add to Lists')}
+            </div>
+          </MenuItem>
+        )}
         <hr className="menu__separator" />
         {channelUri && !claimIsMine && !isMyCollection && (
           <>

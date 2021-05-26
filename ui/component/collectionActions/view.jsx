@@ -82,7 +82,7 @@ function CollectionActions(props: Props) {
         <Button
           className={classnames('button--file-action')}
           title={__('Delete Collection')}
-          onClick={() => openModal(MODALS.COLLECTION_DELETE, { uri, collectionId, redirect: `/$/${PAGES.LIBRARY}` })}
+          onClick={() => openModal(MODALS.COLLECTION_DELETE, { uri, collectionId, redirect: `/$/${PAGES.LISTS}` })}
           icon={ICONS.DELETE}
           iconSize={18}
           description={__('Delete Collection')}
