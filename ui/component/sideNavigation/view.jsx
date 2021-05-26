@@ -89,9 +89,15 @@ function SideNavigation(props: Props) {
       icon: ICONS.DISCOVER,
     },
     {
+      title: 'Lists',
+      link: `/$/${PAGES.LISTS}`,
+      icon: ICONS.STACK,
+      hideForUnauth: true,
+    },
+    {
       title: 'Library',
       link: `/$/${PAGES.LIBRARY}`,
-      icon: ICONS.STACK,
+      icon: ICONS.PURCHASED,
       hideForUnauth: true,
     },
   ];
