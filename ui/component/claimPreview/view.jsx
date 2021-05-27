@@ -27,6 +27,7 @@ import ClaimPreviewNoContent from './claim-preview-no-content';
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
+import ClaimProperties from 'component/claimProperties';
 
 type Props = {
   uri: string,
@@ -151,7 +152,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     }
   }
   const isRepost = claim && claim.repost_url;
-
+  const isCollection = claim && claim.value_type === 'collection';
   const contentUri = claim && isRepost ? claim.canonical_url || claim.permanent_url : uri;
   const isChannelUri = isValid ? parseURI(contentUri).isChannel : false;
   const signingChannel = claim && claim.signing_channel;
@@ -298,9 +299,14 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                       </div>
                     )}
                     {/* @endif */}
-                    {!isRepost && !isChannelUri && !isLivestream && (
+                    {!isRepost && !isChannelUri && !isLivestream && !isCollection && (
                       <div className="claim-preview__file-property-overlay">
                         <FileProperties uri={contentUri} small />
+                      </div>
+                    )}
+                    {isCollection && (
+                      <div className="claim-preview__claim-property-overlay">
+                        <ClaimProperties uri={uri} small properties={properties} />
                       </div>
                     )}
                   </FileThumbnail>

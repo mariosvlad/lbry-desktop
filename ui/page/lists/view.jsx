@@ -11,7 +11,7 @@ function ListsPage() {
       <label className="claim-list__header-label">
         <span>
           <Icon icon={ICONS.STACK} size={10} />
-          {__('Collections')}
+          {__('Lists')}
         </span>
       </label>
       <CollectionsListMine />
