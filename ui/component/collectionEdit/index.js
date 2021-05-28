@@ -46,9 +46,7 @@ const select = (state, props) => ({
 const perform = (dispatch) => ({
   openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
   publishCollectionUpdate: (params) => dispatch(doCollectionPublishUpdate(params)),
-  publishCollection: (params, collectionId) => {
-    return dispatch(doCollectionPublish(params, collectionId));
-  },
+  publishCollection: (params, collectionId) => dispatch(doCollectionPublish(params, collectionId)),
   clearCollectionErrors: () => dispatch(doClearCollectionErrors()),
 });
 

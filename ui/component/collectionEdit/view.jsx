@@ -22,7 +22,7 @@ import { MINIMUM_PUBLISH_BID, INVALID_NAME_ERROR, ESTIMATED_FEE } from 'constant
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import * as PAGES from 'constants/pages';
 import ThumbnailPicker from 'component/thumbnailPicker';
-
+import analytics from 'analytics';
 const LANG_NONE = 'none';
 const MAX_TAG_SELECT = 5;
 
@@ -209,6 +209,7 @@ function CollectionForm(props: Props) {
       publishCollectionUpdate(params).then((pendingClaim) => {
         if (pendingClaim) {
           const claimId = pendingClaim.claim_id;
+          analytics.apiLogPublish(pendingClaim);
           onDone(claimId);
         }
       });
@@ -216,6 +217,7 @@ function CollectionForm(props: Props) {
       publishCollection(params, collectionId).then((pendingClaim) => {
         if (pendingClaim) {
           const claimId = pendingClaim.claim_id;
+          analytics.apiLogPublish(pendingClaim);
           // analytics.apiLogPublish(success);
           onDone(claimId);
         }

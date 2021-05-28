@@ -125,7 +125,7 @@ function ClaimMenuList(props: Props) {
             <MenuItem className="comment__menu-option" onSelect={() => push(`/$/${PAGES.COLLECTION}/${collectionId}`)}>
               <div className="menu__link">
                 <Icon aria-hidden icon={ICONS.VIEW} />
-                {__('Edit Collection')}
+                {__('View List')}
               </div>
             </MenuItem>
             <MenuItem
@@ -134,7 +134,7 @@ function ClaimMenuList(props: Props) {
             >
               <div className="menu__link">
                 <Icon aria-hidden icon={ICONS.DELETE} />
-                {__('Delete collection')}
+                {__('Delete List')}
               </div>
             </MenuItem>
           </>

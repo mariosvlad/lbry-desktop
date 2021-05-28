@@ -1949,5 +1949,17 @@
   "Cannot publish empty collection": "Cannot publish empty collection",
   "Sending": "Sending",
   "You sent %lbc%": "You sent %lbc%",
+  "Add to Lists": "Add to Lists",
+  "Keep": "Keep",
+  "Lists": "Lists",
+  "Nothing in %collection_name%": "Nothing in %collection_name%",
+  "Add To...": "Add To...",
+  "Type %name% to confirm that you wish to delete the channel.": "Type %name% to confirm that you wish to delete the channel.",
+  "%action% %collection%": "%action% %collection%",
+  "Select File": "Select File",
+  "File Selected": "File Selected",
+  "%label% • %status%": "%label% • %status%",
+  "Url": "Url",
+  "Edit Collection": "Edit Collection",
   "--end--": "--end--"
 }
