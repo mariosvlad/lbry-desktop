@@ -11,25 +11,24 @@ type Props = {
   isSubscribed: boolean,
   small: boolean,
   claim: Claim | CollectionClaim,
+  iconOnly: boolean,
 };
-
-export default function FileProperties(props: Props) {
-  const { uri, isSubscribed, small = false, claim } = props;
+export default function ClaimProperties(props: Props) {
+  const { uri, isSubscribed, small = false, claim, iconOnly } = props;
   const isCollection = claim && claim.value_type === 'collection';
+  const size = small ? 12 : undefined;
   // $FlowFixMe
 
   return (
     <div
-      className={classnames('claim-properties', {
-        'file-properties--small': small,
-      })}
+      className={classnames('claim-preview__overlay-properties', { 'claim-preview__overlay-properties--small': small })}
     >
       {
         <>
-          <ClaimType uri={uri} />
+          <ClaimType uri={uri} small />
           {/*   // $FlowFixMe */}
-          {isCollection && claim && claim.value.claims && <div>{claim.value.claims.length}</div>}
-          {isSubscribed && <Icon tooltip icon={ICONS.SUBSCRIBE} />}
+          {isCollection && claim && claim.value.claims && !iconOnly && <div>{claim.value.claims.length}</div>}
+          {isSubscribed && <Icon size={size} tooltip icon={ICONS.SUBSCRIBE} />}
           <FilePrice hideFree uri={uri} />
         </>
       }

@@ -5,17 +5,21 @@ import Icon from 'component/common/icon';
 
 type Props = {
   claim: Claim,
-  isLivestream: boolean,
+  small: boolean,
 };
 
 function ClaimType(props: Props) {
-  const { claim } = props;
+  const { claim, small } = props;
   const { value_type: claimType } = claim || {};
 
+  const size = small ? 12 : undefined;
+
   if (claimType === 'collection') {
-    return <Icon icon={ICONS.STACK} />;
+    return <Icon size={size} icon={ICONS.STACK} />;
+  } else if (claimType === 'channel') {
+    return <Icon size={size} icon={ICONS.CHANNEL} />;
   } else if (claimType === 'repost') {
-    return <Icon icon={ICONS.REPOST} />;
+    return <Icon size={size} icon={ICONS.REPOST} />;
   }
 
   return <Icon icon={ICONS.DOWNLOADABLE} />;

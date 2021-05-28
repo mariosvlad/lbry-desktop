@@ -8,7 +8,7 @@ import { formatLbryUrlForWeb } from 'util/url';
 import { isEmpty } from 'util/object';
 import FileThumbnail from 'component/fileThumbnail';
 import UriIndicator from 'component/uriIndicator';
-import FileProperties from 'component/fileProperties';
+import PreviewOverlayProperties from 'component/previewOverlayProperties';
 import ClaimTags from 'component/claimTags';
 import SubscribeButton from 'component/subscribeButton';
 import ChannelThumbnail from 'component/channelThumbnail';
@@ -27,7 +27,6 @@ import ClaimPreviewNoContent from './claim-preview-no-content';
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
-import ClaimProperties from 'component/claimProperties';
 
 type Props = {
   uri: string,
@@ -151,9 +150,9 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
       isValid = false;
     }
   }
-  const isRepost = claim && claim.repost_url;
   const isCollection = claim && claim.value_type === 'collection';
-  const contentUri = claim && isRepost ? claim.canonical_url || claim.permanent_url : uri;
+  // const contentUri = claim && isRepost ? claim.canonical_url || claim.permanent_url : uri;
+  const contentUri = uri;
   const isChannelUri = isValid ? parseURI(contentUri).isChannel : false;
   const signingChannel = claim && claim.signing_channel;
   let navigateUrl = formatLbryUrlForWeb((claim && claim.canonical_url) || uri || '/');
@@ -293,20 +292,15 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                 <NavLink {...navLinkProps}>
                   <FileThumbnail thumbnail={thumbnailUrl}>
                     {/* @if TARGET='app' */}
-                    {claim && (
+                    {claim && !isCollection && (
                       <div className="claim-preview__hover-actions">
                         <FileDownloadLink uri={canonicalUrl} hideOpenButton hideDownloadStatus />
                       </div>
                     )}
                     {/* @endif */}
-                    {!isRepost && !isChannelUri && !isLivestream && !isCollection && (
+                    {!isLivestream && (
                       <div className="claim-preview__file-property-overlay">
-                        <FileProperties uri={contentUri} small />
-                      </div>
-                    )}
-                    {isCollection && (
-                      <div className="claim-preview__claim-property-overlay">
-                        <ClaimProperties uri={uri} small properties={properties} />
+                        <PreviewOverlayProperties uri={contentUri} small={type === 'small'} />
                       </div>
                     )}
                   </FileThumbnail>

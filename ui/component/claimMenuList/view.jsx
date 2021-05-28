@@ -29,6 +29,7 @@ type Props = {
   collectionName?: string,
   collectionId: string,
   isMyCollection: boolean,
+  doToast: ({ message: string }) => void,
 };
 
 function ClaimMenuList(props: Props) {
@@ -48,6 +49,7 @@ function ClaimMenuList(props: Props) {
     collectionId,
     collectionName,
     isMyCollection,
+    doToast,
   } = props;
 
   const { push } = useHistory();
@@ -108,9 +110,14 @@ function ClaimMenuList(props: Props) {
           <>
             <MenuItem
               className="comment__menu-option"
-              onSelect={() =>
-                doCollectionEdit('watchlater', { claims: [claim], remove: hasClaimInWatchLater, type: 'playlist' })
-              }
+              onSelect={() => {
+                doToast({
+                  message: __('Item %action% Watch Later', {
+                    action: hasClaimInWatchLater ? __('removed from') : __('added to'),
+                  }),
+                });
+                doCollectionEdit('watchlater', { claims: [claim], remove: hasClaimInWatchLater, type: 'playlist' });
+              }}
             >
               <div className="menu__link">
                 <Icon aria-hidden icon={hasClaimInWatchLater ? ICONS.DELETE : ICONS.TIME} />

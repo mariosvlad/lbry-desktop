@@ -121,11 +121,11 @@ function CollectionActions(props: Props) {
     );
   } else {
     return (
-      <div className="section__actions section__actions--between section__actions--no-margin">
-        <span>
+      <div className="media__subtitle--between">
+        <div className="section__actions">
           {lhsSection}
           {rhsSection}
-        </span>
+        </div>
         {uri && <>{infoButton}</>}
       </div>
     );

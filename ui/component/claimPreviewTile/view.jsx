@@ -11,8 +11,7 @@ import SubscribeButton from 'component/subscribeButton';
 import useGetThumbnail from 'effects/use-get-thumbnail';
 import { formatLbryUrlForWeb } from 'util/url';
 import { parseURI, COLLECTIONS_CONSTS } from 'lbry-redux';
-import ClaimProperties from 'component/claimProperties';
-import FileProperties from 'component/fileProperties';
+import PreviewOverlayProperties from 'component/previewOverlayProperties';
 import FileDownloadLink from 'component/fileDownloadLink';
 import ClaimRepostAuthor from 'component/claimRepostAuthor';
 import ClaimMenuList from 'component/claimMenuList';
@@ -71,6 +70,7 @@ function ClaimPreviewTile(props: Props) {
   } = props;
   const isRepost = claim && claim.repost_channel_url;
   const isCollection = claim && claim.value_type === 'collection';
+  const isStream = claim && claim.value_type === 'stream';
   const collectionClaimId = isCollection && claim && claim.claim_id;
   const shouldFetch = claim === undefined;
   const thumbnailUrl = useGetThumbnail(uri, claim, streamingUrl, getFile, placeholder) || thumbnail;
@@ -179,29 +179,25 @@ function ClaimPreviewTile(props: Props) {
     >
       <NavLink {...navLinkProps}>
         <FileThumbnail thumbnail={thumbnailUrl} allowGifs>
-          {!isChannel && !isCollection && (
+          {!isChannel && (
             <React.Fragment>
               {/* @if TARGET='app' */}
-              {!listId && (
+              {isStream && (
                 <div className="claim-preview__hover-actions">
                   <FileDownloadLink uri={canonicalUrl} hideOpenButton />
                 </div>
               )}
               {/* @endif */}
-              {!listId && (
-                <div className="claim-preview__file-property-overlay">
-                  <FileProperties uri={uri} small properties={properties} />
-                </div>
-              )}
+
+              <div className="claim-preview__file-property-overlay">
+                <PreviewOverlayProperties uri={uri} properties={properties} />
+              </div>
             </React.Fragment>
           )}
           {isCollection && (
             <React.Fragment>
               <div className="claim-preview__collection-wrapper">
                 <CollectionPreviewOverlay collectionId={listId} uri={uri} />
-              </div>
-              <div className="claim-preview__claim-property-overlay">
-                <ClaimProperties uri={uri} small properties={properties} />
               </div>
             </React.Fragment>
           )}

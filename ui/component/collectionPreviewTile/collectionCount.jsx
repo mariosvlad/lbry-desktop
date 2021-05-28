@@ -11,7 +11,7 @@ export default function collectionCount(props: Props) {
   const { count = 0 } = props;
 
   return (
-    <div className={classnames('claim-properties', 'file-properties--small')}>
+    <div className={classnames('claim-preview__overlay-properties', 'claim-preview__overlay-properties--small')}>
       <Icon icon={ICONS.STACK} />
       <div>{count}</div>
     </div>

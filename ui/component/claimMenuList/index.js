@@ -12,6 +12,7 @@ import { doToggleMuteChannel } from 'redux/actions/blocked';
 import { doCommentModBlock, doCommentModUnBlock } from 'redux/actions/comments';
 import { makeSelectChannelIsBlocked } from 'redux/selectors/comments';
 import { doOpenModal } from 'redux/actions/app';
+import { doToast } from 'redux/actions/notifications';
 import ClaimPreview from './view';
 
 const select = (state, props) => {
@@ -35,4 +36,5 @@ export default connect(select, {
   doCommentModUnBlock,
   doCollectionEdit,
   doOpenModal,
+  doToast,
 })(ClaimPreview);

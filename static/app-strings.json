@@ -1961,5 +1961,12 @@
   "%label% • %status%": "%label% • %status%",
   "Url": "Url",
   "Edit Collection": "Edit Collection",
+  "Edit List": "Edit List",
+  "Delete List": "Delete List",
+  "View List": "View List",
+  "added to": "added to",
+  "Item %action% Watch Later": "Item %action% Watch Later",
+  "removed from": "removed from",
+  "%repost% %publish%": "%repost% %publish%",
   "--end--": "--end--"
 }
