@@ -52,6 +52,7 @@ type Props = {
 type SideNavLink = {
   title: string,
   link?: string,
+  route?: string,
   onClick?: () => any,
   icon: string,
   extra?: Node,
@@ -61,7 +62,6 @@ type SideNavLink = {
 function SideNavigation(props: Props) {
   const {
     subscriptions,
-    followedTags,
     doSignOut,
     email,
     purchaseSuccess,
@@ -73,6 +73,7 @@ function SideNavigation(props: Props) {
     unseenCount,
     homepageData,
     user,
+    followedTags,
     hasExperimentalUi,
   } = props;
 
@@ -91,7 +92,7 @@ function SideNavigation(props: Props) {
       icon: ICONS.DISCOVER,
     },
     {
-      title: 'Library',
+      title: IS_WEB ? 'Purchased' : 'Library',
       link: `/$/${PAGES.LIBRARY}`,
       icon: ICONS.PURCHASED,
       hideForUnauth: true,
@@ -308,7 +309,7 @@ function SideNavigation(props: Props) {
         <Button label={__('FAQ')} href="https://odysee.com/@OdyseeHelp:b" />
       </li>
       <li className="navigation-link">
-        <Button label={__('Support')} href="https://lbry.com/support" />
+        <Button label={__('Support --[used in footer; general help/support]--')} href="https://lbry.com/support" />
       </li>
       <li className="navigation-link">
         <Button label={__('Terms')} href="https://lbry.com/termsofservice" />
@@ -341,7 +342,7 @@ function SideNavigation(props: Props) {
                 //   $FlowFixMe
                 const { hideForUnauth, ...passedProps } = linkProps;
                 return !email && linkProps.hideForUnauth && IS_WEB ? null : (
-                  <li key={linkProps.link}>
+                  <li key={linkProps.route || linkProps.link}>
                     <Button
                       {...passedProps}
                       label={__(linkProps.title)}
