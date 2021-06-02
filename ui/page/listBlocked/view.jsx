@@ -11,64 +11,185 @@ import ChannelBlockButton from 'component/channelBlockButton';
 import ChannelMuteButton from 'component/channelMuteButton';
 import Yrbl from 'component/yrbl';
 
-type Props = {
-  mutedUris: ?Array<string>,
-  blockedUris: ?Array<string>,
-  fetchingModerationBlockList: boolean,
-  fetchModBlockedList: () => void,
+const VIEW = {
+  BLOCKED: 'blocked',
+  ADMIN: 'admin',
+  MODERATOR: 'moderator',
+  MUTED: 'muted',
 };
 
-const VIEW_BLOCKED = 'blocked';
-const VIEW_MUTED = 'muted';
+type Props = {
+  mutedUris: ?Array<string>,
+  personalBlockList: ?Array<string>,
+  adminBlockList: ?Array<string>,
+  moderatorBlockList: ?Array<string>,
+  fetchingModerationBlockList: boolean,
+  fetchModBlockedList: () => void,
+  fetchModAmIList: () => void,
+  delegatorsById: { [string]: { global: boolean, delegators: { name: string, claimId: string } } },
+  myChannelClaims: ?Array<ChannelClaim>,
+};
 
 function ListBlocked(props: Props) {
-  const { mutedUris, blockedUris, fetchingModerationBlockList, fetchModBlockedList } = props;
-  const [viewMode, setViewMode] = usePersistedState('blocked-muted:display', VIEW_BLOCKED);
+  const {
+    mutedUris,
+    personalBlockList,
+    adminBlockList,
+    moderatorBlockList,
+    fetchingModerationBlockList,
+    fetchModBlockedList,
+    fetchModAmIList,
+    delegatorsById,
+    myChannelClaims,
+  } = props;
+  const [viewMode, setViewMode] = usePersistedState('blocked-muted:display', VIEW.BLOCKED);
 
   // Keep a local list to allow for undoing actions in this component
-  const [localBlockedList, setLocalBlockedList] = React.useState(undefined);
+  const [localPersonalList, setLocalPersonalList] = React.useState(undefined);
+  const [localAdminList, setLocalAdminList] = React.useState(undefined);
+  const [localModeratorList, setLocalModeratorList] = React.useState(undefined);
   const [localMutedList, setLocalMutedList] = React.useState(undefined);
 
   const hasLocalMuteList = localMutedList && localMutedList.length > 0;
-  const hasLocalBlockList = localBlockedList && localBlockedList.length > 0;
-  const stringifiedMutedChannels = JSON.stringify(mutedUris);
+  const hasLocalPersonalList = localPersonalList && localPersonalList.length > 0;
+
+  const stringifiedMutedList = JSON.stringify(mutedUris);
+  const stringifiedPersonalList = JSON.stringify(personalBlockList);
+  const stringifiedAdminList = JSON.stringify(adminBlockList);
+  const stringifiedModeratorList = JSON.stringify(moderatorBlockList);
+
+  const stringifiedLocalAdminList = JSON.stringify(localAdminList);
+  const stringifiedLocalModeratorList = JSON.stringify(localModeratorList);
+
   const justMuted = localMutedList && mutedUris && localMutedList.length < mutedUris.length;
-  const justBlocked = localBlockedList && blockedUris && localBlockedList.length < blockedUris.length;
-  const stringifiedBlockedChannels = JSON.stringify(blockedUris);
-  const showUris = (viewMode === VIEW_MUTED && hasLocalMuteList) || (viewMode === VIEW_BLOCKED && hasLocalBlockList);
+  const justPersonalBlocked =
+    localPersonalList && personalBlockList && localPersonalList.length < personalBlockList.length;
+
+  const isAdmin =
+    myChannelClaims && myChannelClaims.some((c) => delegatorsById[c.claim_id] && delegatorsById[c.claim_id].global);
+  const isModerator =
+    myChannelClaims &&
+    myChannelClaims.some(
+      (c) => delegatorsById[c.claim_id] && Object.keys(delegatorsById[c.claim_id].delegators).length > 0
+    );
+
+  const listForView = getList(viewMode);
+  const showUris = listForView && listForView.length > 0;
+
+  function getList(view) {
+    switch (view) {
+      case VIEW.BLOCKED:
+        return localPersonalList;
+      case VIEW.ADMIN:
+        return localAdminList;
+      case VIEW.MODERATOR:
+        return localModeratorList;
+      case VIEW.MUTED:
+        return localMutedList;
+    }
+  }
+
+  function getButtons(view, uri) {
+    switch (view) {
+      case VIEW.BLOCKED:
+        return (
+          <>
+            <ChannelBlockButton uri={uri} />
+            <ChannelMuteButton uri={uri} />
+          </>
+        );
+
+      case VIEW.ADMIN:
+        return <ChannelBlockButton uri={uri} asAdmin />;
+
+      case VIEW.MODERATOR:
+        return <ChannelBlockButton uri={uri} asModerator />;
+
+      case VIEW.MUTED:
+        return (
+          <>
+            <ChannelMuteButton uri={uri} />
+            <ChannelBlockButton uri={uri} />
+          </>
+        );
+    }
+  }
+
+  function getHelpText(view) {
+    switch (view) {
+      case VIEW.BLOCKED:
+        return "Blocked channels will be invisible to you in the app. They will not be able to comment on your content, nor reply to your comments left on other channels' content.";
+      case VIEW.ADMIN:
+        return 'This is the global block list.';
+      case VIEW.MODERATOR:
+        return 'List of channels that you have blocked as a moderator. To unblock a channel, notify the content creator.';
+      case VIEW.MUTED:
+        return 'Muted channels will be invisible to you in the app. They will not know they are muted and can still interact with you and your content.';
+    }
+  }
+
+  function getEmptyListTitle(view) {
+    switch (view) {
+      case VIEW.BLOCKED:
+        return 'You do not have any blocked channels';
+      case VIEW.MUTED:
+        return 'You do not have any muted channels';
+      case VIEW.ADMIN:
+        return 'You do not have any globally-blocked channels';
+      case VIEW.MODERATOR:
+        return 'You do not have any blocked channels as a moderator';
+    }
+  }
+
+  function getEmptyListSubtitle(view) {
+    switch (view) {
+      case VIEW.BLOCKED:
+      case VIEW.MUTED:
+        return getHelpText(view);
+
+      case VIEW.ADMIN:
+      case VIEW.MODERATOR:
+        return null;
+    }
+  }
 
   React.useEffect(() => {
-    const jsonMutedChannels = stringifiedMutedChannels && JSON.parse(stringifiedMutedChannels);
+    const jsonMutedChannels = stringifiedMutedList && JSON.parse(stringifiedMutedList);
     if (!hasLocalMuteList && jsonMutedChannels && jsonMutedChannels.length > 0) {
       setLocalMutedList(jsonMutedChannels);
     }
-  }, [stringifiedMutedChannels, hasLocalMuteList]);
+  }, [stringifiedMutedList, hasLocalMuteList]);
 
   React.useEffect(() => {
-    const jsonBlockedChannels = stringifiedBlockedChannels && JSON.parse(stringifiedBlockedChannels);
-    if (!hasLocalBlockList && jsonBlockedChannels && jsonBlockedChannels.length > 0) {
-      setLocalBlockedList(jsonBlockedChannels);
+    const jsonBlockedChannels = stringifiedPersonalList && JSON.parse(stringifiedPersonalList);
+    if (!hasLocalPersonalList && jsonBlockedChannels && jsonBlockedChannels.length > 0) {
+      setLocalPersonalList(jsonBlockedChannels);
     }
-  }, [stringifiedBlockedChannels, hasLocalBlockList]);
+  }, [stringifiedPersonalList, hasLocalPersonalList]);
 
   React.useEffect(() => {
-    if (justMuted && stringifiedMutedChannels) {
-      setLocalMutedList(JSON.parse(stringifiedMutedChannels));
+    if (stringifiedAdminList !== stringifiedLocalAdminList) {
+      setLocalAdminList(stringifiedAdminList ? JSON.parse(stringifiedAdminList) : undefined);
     }
-  }, [stringifiedMutedChannels, justMuted, setLocalMutedList]);
+  }, [stringifiedAdminList, stringifiedLocalAdminList]);
 
   React.useEffect(() => {
-    if (justBlocked && stringifiedBlockedChannels) {
-      setLocalBlockedList(JSON.parse(stringifiedBlockedChannels));
+    if (stringifiedModeratorList !== stringifiedLocalModeratorList) {
+      setLocalModeratorList(stringifiedModeratorList ? JSON.parse(stringifiedModeratorList) : undefined);
     }
-  }, [stringifiedBlockedChannels, justBlocked, setLocalBlockedList]);
+  }, [stringifiedModeratorList, stringifiedLocalModeratorList]);
 
-  const mutedHelpText = __(
-    'Muted channels will be invisible to you in the app. They will not know they are muted and can still interact with you and your content.'
-  );
-  const blockedHelpText = __(
-    "Blocked channels will be invisible to you in the app. They will not be able to comment on your content, or reply to you comments left on other channels' content."
-  );
+  React.useEffect(() => {
+    if (justMuted && stringifiedMutedList) {
+      setLocalMutedList(JSON.parse(stringifiedMutedList));
+    }
+  }, [stringifiedMutedList, justMuted, setLocalMutedList]);
+
+  React.useEffect(() => {
+    if (justPersonalBlocked && stringifiedPersonalList) {
+      setLocalPersonalList(JSON.parse(stringifiedPersonalList));
+    }
+  }, [stringifiedPersonalList, justPersonalBlocked, setLocalPersonalList]);
 
   return (
     <Page>
@@ -87,60 +208,72 @@ function ListBlocked(props: Props) {
                 button="alt"
                 label={__('Blocked')}
                 className={classnames(`button-toggle`, {
-                  'button-toggle--active': viewMode === VIEW_BLOCKED,
+                  'button-toggle--active': viewMode === VIEW.BLOCKED,
                 })}
-                onClick={() => setViewMode(VIEW_BLOCKED)}
+                onClick={() => setViewMode(VIEW.BLOCKED)}
               />
+              {isAdmin && (
+                <Button
+                  icon={ICONS.BLOCK}
+                  button="alt"
+                  label={__('Global')}
+                  className={classnames(`button-toggle`, {
+                    'button-toggle--active': viewMode === VIEW.ADMIN,
+                  })}
+                  onClick={() => setViewMode(VIEW.ADMIN)}
+                />
+              )}
+              {isModerator && (
+                <Button
+                  icon={ICONS.BLOCK}
+                  button="alt"
+                  label={__('Moderator')}
+                  className={classnames(`button-toggle`, {
+                    'button-toggle--active': viewMode === VIEW.MODERATOR,
+                  })}
+                  onClick={() => setViewMode(VIEW.MODERATOR)}
+                />
+              )}
               <Button
                 icon={ICONS.MUTE}
                 button="alt"
                 label={__('Muted')}
                 className={classnames(`button-toggle`, {
-                  'button-toggle--active': viewMode === VIEW_MUTED,
+                  'button-toggle--active': viewMode === VIEW.MUTED,
                 })}
-                onClick={() => setViewMode(VIEW_MUTED)}
+                onClick={() => setViewMode(VIEW.MUTED)}
               />
             </div>
             <div className="section__actions--inline">
-              <Button icon={ICONS.REFRESH} button="alt" label={__('Refresh')} onClick={() => fetchModBlockedList()} />
+              <Button
+                icon={ICONS.REFRESH}
+                button="alt"
+                label={__('Refresh')}
+                onClick={() => {
+                  fetchModBlockedList();
+                  fetchModAmIList();
+                }}
+              />
             </div>
           </div>
 
-          {showUris && <div className="help--notice">{viewMode === VIEW_MUTED ? mutedHelpText : blockedHelpText}</div>}
+          {showUris && <div className="help--notice">{getHelpText(viewMode)}</div>}
 
           {showUris ? (
             <ClaimList
-              uris={viewMode === VIEW_MUTED ? localMutedList : localBlockedList}
+              uris={getList(viewMode)}
               showUnresolvedClaims
               showHiddenByUser
               hideMenu
               renderActions={(claim) => {
-                return (
-                  <div className="section__actions">
-                    {viewMode === VIEW_MUTED ? (
-                      <>
-                        <ChannelMuteButton uri={claim.permanent_url} />
-                        <ChannelBlockButton uri={claim.permanent_url} />
-                      </>
-                    ) : (
-                      <>
-                        <ChannelBlockButton uri={claim.permanent_url} />
-                        <ChannelMuteButton uri={claim.permanent_url} />
-                      </>
-                    )}
-                  </div>
-                );
+                return <div className="section__actions">{getButtons(viewMode, claim.permanent_url)}</div>;
               }}
             />
           ) : (
             <div className="main--empty">
               <Yrbl
-                title={
-                  viewMode === VIEW_MUTED
-                    ? __('You do not have any muted channels')
-                    : __('You do not have any blocked channels')
-                }
-                subtitle={viewMode === VIEW_MUTED ? mutedHelpText : blockedHelpText}
+                title={getEmptyListTitle(viewMode)}
+                subtitle={getEmptyListSubtitle(viewMode)}
                 actions={
                   <div className="section__actions">
                     <Button button="primary" label={__('Go Home')} navigate="/" />

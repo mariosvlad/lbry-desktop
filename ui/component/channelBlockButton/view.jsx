@@ -4,21 +4,47 @@ import Button from 'component/button';
 
 type Props = {
   uri: string,
+  asAdmin: boolean,
+  asModerator: boolean,
   isBlocked: boolean,
   isBlockingOrUnBlocking: boolean,
   doCommentModUnBlock: (string) => void,
   doCommentModBlock: (string) => void,
+  doCommentModUnBlockAsAdmin: (string, string) => void,
+  doCommentModBlockAsAdmin: (string, string) => void,
 };
 
 function ChannelBlockButton(props: Props) {
-  const { uri, doCommentModUnBlock, doCommentModBlock, isBlocked, isBlockingOrUnBlocking } = props;
+  const {
+    uri,
+    asAdmin,
+    asModerator,
+    doCommentModUnBlock,
+    doCommentModBlock,
+    doCommentModUnBlockAsAdmin,
+    doCommentModBlockAsAdmin,
+    isBlocked,
+    isBlockingOrUnBlocking,
+  } = props;
 
   function handleClick() {
-    if (isBlocked) {
-      doCommentModUnBlock(uri);
+    if (asAdmin) {
+      if (isBlocked) {
+        doCommentModUnBlockAsAdmin(uri, '');
+      } else {
+        doCommentModBlockAsAdmin(uri, '');
+      }
     } else {
-      doCommentModBlock(uri);
+      if (isBlocked) {
+        doCommentModUnBlock(uri);
+      } else {
+        doCommentModBlock(uri);
+      }
     }
+  }
+
+  if (asModerator) {
+    return null;
   }
 
   return (

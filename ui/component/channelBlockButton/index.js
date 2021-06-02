@@ -1,14 +1,34 @@
 import { connect } from 'react-redux';
-import { doCommentModUnBlock, doCommentModBlock } from 'redux/actions/comments';
-import { makeSelectChannelIsBlocked, makeSelectUriIsBlockingOrUnBlocking } from 'redux/selectors/comments';
+import {
+  doCommentModUnBlock,
+  doCommentModBlock,
+  doCommentModBlockAsAdmin,
+  doCommentModUnBlockAsAdmin,
+} from 'redux/actions/comments';
+import {
+  makeSelectChannelIsBlocked,
+  makeSelectChannelIsAdminBlocked,
+  makeSelectUriIsBlockingOrUnBlocking,
+} from 'redux/selectors/comments';
 import ChannelBlockButton from './view';
 
-const select = (state, props) => ({
-  isBlocked: makeSelectChannelIsBlocked(props.uri)(state),
-  isBlockingOrUnBlocking: makeSelectUriIsBlockingOrUnBlocking(props.uri)(state),
-});
+const select = (state, props) => {
+  let isBlocked;
+  if (props.asAdmin) {
+    isBlocked = makeSelectChannelIsAdminBlocked(props.uri)(state);
+  } else {
+    isBlocked = makeSelectChannelIsBlocked(props.uri)(state);
+  }
+
+  return {
+    isBlocked: isBlocked,
+    isBlockingOrUnBlocking: makeSelectUriIsBlockingOrUnBlocking(props.uri)(state),
+  };
+};
 
 export default connect(select, {
   doCommentModUnBlock,
   doCommentModBlock,
+  doCommentModUnBlockAsAdmin,
+  doCommentModBlockAsAdmin,
 })(ChannelBlockButton);

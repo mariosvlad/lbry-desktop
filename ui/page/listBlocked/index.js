@@ -1,17 +1,29 @@
 import { connect } from 'react-redux';
-import { doFetchModBlockedList } from 'redux/actions/comments';
+import { doFetchModBlockedList, doFetchCommentModAmIList } from 'redux/actions/comments';
 import { selectMutedChannels } from 'redux/selectors/blocked';
-import { selectModerationBlockList, selectFetchingModerationBlockList } from 'redux/selectors/comments';
+import {
+  selectModerationBlockList,
+  selectAdminBlockList,
+  selectModeratorBlockList,
+  selectFetchingModerationBlockList,
+  selectModerationDelegatorsById,
+} from 'redux/selectors/comments';
+import { selectMyChannelClaims } from 'lbry-redux';
 import ListBlocked from './view';
 
 const select = (state) => ({
   mutedUris: selectMutedChannels(state),
-  blockedUris: selectModerationBlockList(state),
+  personalBlockList: selectModerationBlockList(state),
+  adminBlockList: selectAdminBlockList(state),
+  moderatorBlockList: selectModeratorBlockList(state),
+  delegatorsById: selectModerationDelegatorsById(state),
+  myChannelClaims: selectMyChannelClaims(state),
   fetchingModerationBlockList: selectFetchingModerationBlockList(state),
 });
 
 const perform = (dispatch) => ({
   fetchModBlockedList: () => dispatch(doFetchModBlockedList()),
+  fetchModAmIList: () => dispatch(doFetchCommentModAmIList()),
 });
 
 export default connect(select, perform)(ListBlocked);
