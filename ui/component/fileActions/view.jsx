@@ -28,6 +28,7 @@ type Props = {
   clearPlayingUri: () => void,
   isLivestreamClaim: boolean,
   hasExperimentalUi: boolean,
+  reactionsDisabled: boolean,
 };
 
 function FileActions(props: Props) {
@@ -45,6 +46,7 @@ function FileActions(props: Props) {
     doToast,
     isLivestreamClaim,
     hasExperimentalUi,
+    reactionsDisabled,
   } = props;
   const {
     push,
@@ -85,7 +87,7 @@ function FileActions(props: Props) {
 
   const lhsSection = (
     <>
-      {ENABLE_FILE_REACTIONS && <FileReactions uri={uri} />}
+      {ENABLE_FILE_REACTIONS && !reactionsDisabled && <FileReactions uri={uri} />}
       <ClaimSupportButton uri={uri} fileAction />
       {hasExperimentalUi && <ClaimCollectionAddButton uri={uri} fileAction />}
       <Button
