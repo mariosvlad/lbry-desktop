@@ -30,7 +30,7 @@ import * as ICONS from 'constants/icons';
 
 type Props = {
   uri: string,
-  claim: ?Claim, // maybe?
+  claim: ?Claim,
   obscureNsfw: boolean,
   showUserBlocked: boolean,
   claimIsMine: boolean,
@@ -127,7 +127,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     renderActions,
     hideMenu = false,
     // repostUrl,
-    isLivestream, // need both? CHECK
+    isLivestream,
     live,
     collectionId,
     collectionIndex,
