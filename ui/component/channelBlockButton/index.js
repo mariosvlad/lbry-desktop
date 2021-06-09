@@ -4,6 +4,7 @@ import {
   doCommentModBlock,
   doCommentModBlockAsAdmin,
   doCommentModUnBlockAsAdmin,
+  doFetchModBlockedList,
 } from 'redux/actions/comments';
 import {
   makeSelectChannelIsBlocked,
@@ -31,4 +32,5 @@ export default connect(select, {
   doCommentModBlock,
   doCommentModUnBlockAsAdmin,
   doCommentModBlockAsAdmin,
+  doFetchModBlockedList,
 })(ChannelBlockButton);

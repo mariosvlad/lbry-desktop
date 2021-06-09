@@ -12,6 +12,7 @@ type Props = {
   doCommentModBlock: (string) => void,
   doCommentModUnBlockAsAdmin: (string, string) => void,
   doCommentModBlockAsAdmin: (string, string) => void,
+  doFetchModBlockedList: () => void,
 };
 
 function ChannelBlockButton(props: Props) {
@@ -23,6 +24,7 @@ function ChannelBlockButton(props: Props) {
     doCommentModBlock,
     doCommentModUnBlockAsAdmin,
     doCommentModBlockAsAdmin,
+    doFetchModBlockedList,
     isBlocked,
     isBlockingOrUnBlocking,
   } = props;
@@ -34,6 +36,9 @@ function ChannelBlockButton(props: Props) {
       } else {
         doCommentModBlockAsAdmin(uri, '');
       }
+      setTimeout(() => {
+        doFetchModBlockedList();
+      }, 2000);
     } else {
       if (isBlocked) {
         doCommentModUnBlock(uri);
